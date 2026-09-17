@@ -2,7 +2,7 @@
 title: NLP 到 LLM
 slug: nlp-llm
 date: 2026-08-01
-category: tech-notes
+category: note
 ---
 
 

@@ -2,20 +2,16 @@ export const PAGE_SIZE = 5;
 
 export const CATEGORIES = [
   {
-    key: 'lab-log',
-    title: '项目实验记录',
+    key: 'experiment',
+    title: '做过的项目',
   },
   {
-    key: 'tech-notes',
-    title: '技术学习笔记',
+    key: 'note',
+    title: '一些笔记',
   },
   {
-    key: 'weekly-review',
-    title: '学习总结',
-  },
-  {
-    key: 'life-notes',
-    title: '生活碎碎念',
+    key: 'reflections',
+    title: '杂思录',
   },
 ];
 

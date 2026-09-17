@@ -1,8 +1,8 @@
 ---
-title: 学习总结示例
+title: 杂思录示例：每周回顾
 slug: weekly-review-example
 date: 2026-05-30
-category: weekly-review
+category: reflections
 ---
 
 这一类文章可以固定成一个轻量模板：

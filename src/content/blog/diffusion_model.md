@@ -2,7 +2,7 @@
 title: diffusion-model
 slug: diffusion-model-learning
 date: 2026-06-09
-category: tech-notes
+category: note
 ---
 
 一个重要的思想，**一张图片**可以看成是一个高维空间中的**一个点**，真实图片只集中在这个空间中很小的一部分。我们就是要学习，如何让概率密度只集中在真实图片区域。

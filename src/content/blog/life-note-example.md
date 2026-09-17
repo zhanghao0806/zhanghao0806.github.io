@@ -1,11 +1,11 @@
 ---
-title: 生活碎碎念示例
+title: 杂思录示例：生活随想
 slug: life-note-example
 date: 2026-05-28
-category: life-notes
+category: reflections
 ---
 
-生活碎碎念可以更轻松，不需要写成完整文章。
+生活随想可以更轻松，不需要写成完整文章。
 
 可以记录：
 

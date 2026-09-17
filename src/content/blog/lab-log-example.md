@@ -1,11 +1,11 @@
 ---
-title: 项目实验记录示例
+title: 做过的项目示例
 slug: lab-log-example
 date: 2026-05-29
-category: lab-log
+category: experiment
 ---
 
-项目实验记录建议写得更结构化，方便以后回头查。
+项目记录建议写得更结构化，方便以后回头查。
 
 ## 实验目标
 

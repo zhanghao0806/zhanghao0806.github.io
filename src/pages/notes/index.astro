@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatDate } from '../../lib/writing.js';
 
 const notes = Object.values(import.meta.glob('../../content/blog/*.md', { eager: true })).filter(
-  (post) => post.frontmatter.category === 'life-notes',
+  (post) => post.frontmatter.category === 'reflections',
 );
 const sortedNotes = notes.sort(
   (a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf(),
@@ -11,11 +11,11 @@ const sortedNotes = notes.sort(
 
 ---
 
-<BaseLayout title="Notes | 张浩">
+<BaseLayout title="杂思录 | 张浩">
   <section class="hero">
-    <p class="eyebrow">Notes</p>
-    <h1>生活碎碎念</h1>
-    <p class="lead">这是写作目录里的一个分类，用来放生活、阅读、观察和想法片段。</p>
+    <p class="eyebrow">Reflections</p>
+    <h1>杂思录</h1>
+    <p class="lead">记录学习回顾、生活随想、阅读、观察和想法片段。</p>
   </section>
 
   <section class="section">

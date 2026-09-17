@@ -2,7 +2,7 @@
 title: MNIST 数据集上实现 VAE 模型
 slug: MNIST-VAE
 date: 2026-06-05
-category: lab-log
+category: experiment
 ---
 
 MNIST 数据集上实现 VAE 模型

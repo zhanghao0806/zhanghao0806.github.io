@@ -2,7 +2,7 @@
 title: GPU训练基础知识
 slug: GPU-Knowledge
 date: 2026-07-30
-category: tech-notes
+category: note
 ---
 
 GPU 训练：DDPM

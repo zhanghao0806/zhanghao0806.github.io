@@ -62,7 +62,7 @@ const featuredSlugs = ['qnn1', 'weekly-review01', 'tech-note-example'];
 title: 如何理解 QNN 参数化量子电路
 slug: qnn1
 date: 2026-06-02
-category: tech-notes
+category: note
 ---
 ```
 
@@ -136,7 +136,7 @@ src/pages/projects.astro
   summary: '一句话简介。',
   tags: ['标签1', '标签2'],
   links: [
-    { label: '项目实验记录', href: '/blog/你的文章slug/' },
+    { label: '做过的项目', href: '/blog/你的文章slug/' },
     { label: 'GitHub', href: 'https://github.com/zhanghao0806/你的项目仓库' },
   ],
 }
@@ -144,24 +144,24 @@ src/pages/projects.astro
 
 以后做完一个项目，推荐流程是：
 
-1. 先在 `src/content/blog/` 写一篇 `category: lab-log` 的项目实验记录文章。
+1. 先在 `src/content/blog/` 写一篇 `category: experiment` 的项目文章。
 2. 给这篇文章设置清楚的 `slug`，例如 `mnist-qnn-lab`。
 3. 在 `src/pages/projects.astro` 的 `projects` 数组里复制一个项目对象。
 4. `title` 写项目中文名。
 5. `summary` 写一句话简介。
-6. 第一个链接写项目实验记录文章地址：`/blog/mnist-qnn-lab/`。
+6. 第一个链接写项目文章地址：`/blog/mnist-qnn-lab/`。
 7. 第二个链接写这个项目的 GitHub 仓库地址。
 
-目前项目卡片不会自动从项目实验记录文章生成。原因是项目页需要“项目中文名、简介、GitHub 仓库、相关文章链接”这些结构化信息，而普通 Markdown 文章现在只保存了 `title / slug / date / category`。
+目前项目卡片不会自动从项目文章生成。原因是项目页需要“项目中文名、简介、GitHub 仓库、相关文章链接”这些结构化信息，而普通 Markdown 文章现在只保存了 `title / slug / date / category`。
 
-如果以后想自动生成，可以给项目实验记录文章增加额外 frontmatter，例如：
+如果以后想自动生成，可以给项目文章增加额外 frontmatter，例如：
 
 ```md
 ---
 title: QNN 实现 MNIST01 分类学习
 slug: mnist-qnn-lab
 date: 2026-06-04
-category: lab-log
+category: experiment
 project:
   name: QNN 手写数字分类
   summary: 使用参数化量子电路完成 MNIST 0/1 分类实验。
@@ -260,7 +260,7 @@ src/content/blog/qnn-note-02.md
 title: 文章标题
 slug: qnn-note-02
 date: 2026-06-04
-category: tech-notes
+category: note
 ---
 
 正文从这里开始写。
@@ -272,14 +272,15 @@ category: tech-notes
 https://zhanghao0806.github.io/blog/qnn-note-02/
 ```
 
-`category` 只能使用下面四种之一：
+`category` 只能使用下面三种之一：
 
 ```text
-lab-log         项目实验记录
-tech-notes      技术学习笔记
-weekly-review   学习总结
-life-notes      生活碎碎念
+experiment      做过的项目
+note            一些笔记
+reflections     杂思录
 ```
+
+“杂思录”统一收录学习回顾、生活随想、阅读与观察。旧的 `/notes/` 入口同步展示合并后的杂思录文章。修改分类时保留文章的 `slug`，已有文章链接仍然可用。
 
 文章目录会自动按 `category` 分类，并按 `date` 从新到旧排序。每个专栏每页显示 5 篇文章，分页数量在这里改：
 
@@ -315,22 +316,21 @@ public/images/
 
 ```text
 public/images/
-├─ lab-log/
-├─ life-notes/
-├─ tech-notes/
-└─ weekly-review/
+├─ experiment/
+├─ note/
+└─ reflections/
 ```
 
 例如图片放在：
 
 ```text
-public/images/tech-notes/qnn-circuit.png
+public/images/note/qnn-circuit.png
 ```
 
 Markdown 里这样引用：
 
 ```md
-![QNN 电路示意图](/images/tech-notes/qnn-circuit.png)
+![QNN 电路示意图](/images/note/qnn-circuit.png)
 ```
 
 注意：

@@ -6,7 +6,7 @@ slug: qnn-MNIST01
 
 date: 2026-06-04
 
-category: lab-log
+category: experiment
 
 ---
 

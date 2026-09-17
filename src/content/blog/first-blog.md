@@ -1,11 +1,11 @@
 ---
-title: 技术学习笔记示例
+title: 一些笔记示例
 slug: tech-note-example
 date: 2026-05-31
-category: tech-notes
+category: note
 ---
 
-这是技术学习笔记示例。以后你可以复制这个文件，改掉 `title`、`slug`、`date`、`category` 和正文。
+这是一些笔记示例。以后你可以复制这个文件，改掉 `title`、`slug`、`date`、`category` 和正文。
 
 这类文章适合记录：
 
