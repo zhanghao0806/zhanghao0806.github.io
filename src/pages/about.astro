@@ -14,9 +14,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2>个人信息</h2>
         <ul class="info-list">
           <li><strong>姓名</strong><span>张浩</span></li>
-          <li><strong>教育经历</strong><span>2021-2025 南京理工大学</span></li>
-          <li><strong>当前状态</strong><span>2026-至今 浙江大学</span></li>
-          <li><strong>关注方向</strong><span>Agent 行为校验、行为边界、真实工程环境中的可靠性</span></li>
+          <li>
+            <strong>教育经历</strong>
+            <span class="education-history">
+              <span>2021-2025 南京理工大学</span>
+              <span>2026-至今 浙江大学</span>
+            </span>
+          </li>
+          <li><strong>专业方向</strong><span>Agent 行为校验、行为边界、真实工程环境中的可靠性</span></li>
           <li><strong>Email</strong><a href="mailto:zhanghao4536@zju.edu.cn">zhanghao4536@zju.edu.cn</a></li>
           <li><strong>GitHub</strong><a href="https://github.com/zhanghao0806">github.com/zhanghao0806</a></li>
           <li><strong>主页</strong><a href="https://zhanghao0806.github.io/">zhanghao0806.github.io</a></li>
@@ -42,3 +47,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .education-history {
+    display: grid;
+    gap: 10px;
+    text-align: right;
+  }
+</style>

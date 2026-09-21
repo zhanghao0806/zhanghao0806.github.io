@@ -223,8 +223,13 @@ src/pages/about.astro
 <h2>个人信息</h2>
 <ul class="info-list">
   <li><strong>姓名</strong><span>张浩</span></li>
-  <li><strong>教育经历</strong><span>2021-2025 南京理工大学</span></li>
-  <li><strong>当前状态</strong><span>2026-至今 浙江大学</span></li>
+  <li>
+    <strong>教育经历</strong>
+    <span class="education-history">
+      <span>2021-2025 南京理工大学</span>
+      <span>2026-至今 浙江大学</span>
+    </span>
+  </li>
 </ul>
 ```
 
