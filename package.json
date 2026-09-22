@@ -6,7 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "predev": "npm run font:subset",
     "dev": "astro dev",
+    "prebuild": "npm run font:subset",
     "build": "npm run check:pet:ready && astro build && npm run check:cat-pages",
     "check:pet": "node scripts/validate-pet-assets.mjs",
     "check:pet:ready": "node scripts/validate-pet-assets.mjs --require-ready",

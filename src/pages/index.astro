@@ -31,9 +31,9 @@ const heroImage = '/images/home/hero-zh-coder.jpg';
 
 <BaseLayout title="张浩 | 个人主页">
   <section class="hero-panel">
-    <div>
+    <div class="hero-copy">
       <h1>Pain is just pain</h1>
-      <p>在坚冰还盖着北海的时候，我看到了怒放的梅花</p>
+      <p class="hero-quote">“在坚冰还盖着北海的时候，我看到了怒放的梅花”</p>
       <div class="hero-actions">
         <a class="button primary" href="/blog/">阅读文章</a>
         <a class="button secondary" href="/projects/">查看项目</a>
@@ -108,3 +108,58 @@ const heroImage = '/images/home/hero-zh-coder.jpg';
     </ul>
   </section>
 </BaseLayout>
+
+<style>
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    justify-content: center;
+    min-width: 0;
+    padding: 12px 0;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(36px, 4.5vw, 56px);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .hero-quote {
+    margin-top: 22px;
+    max-width: 28em;
+    color: var(--muted);
+    font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+    font-size: clamp(19px, 1.8vw, 22px);
+    font-style: italic;
+    line-height: 1.9;
+    text-wrap: balance;
+  }
+
+  .hero-copy .hero-actions {
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 40px;
+  }
+
+  .hero-copy .button {
+    min-height: 46px;
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 700px) {
+    .hero-copy {
+      padding: 4px 0;
+    }
+
+    .hero-quote {
+      margin-top: 18px;
+    }
+
+    .hero-copy .hero-actions {
+      margin-top: 30px;
+    }
+  }
+</style>

@@ -297,17 +297,27 @@ src/lib/writing.js
 export const PAGE_SIZE = 5;
 ```
 
-### 新文章加入生僻字后更新网页字体
+### 文章字体自动更新
 
-文章页使用的是按当前文章内容裁剪过的霞鹜文楷 WOFF2，体积远小于完整字体。普通新增文章即使不更新字体也能正常显示，尚未包含的字会暂时使用后备字体。
+文章页使用按所有文章内容裁剪的霞鹜文楷 WOFF2。每次运行 `npm run build`，都会先自动重新生成字体，再构建网页，避免新增汉字因旧字体缺字而混用系统字体。
 
-如果新文章加入了较多新汉字，保存文章后运行：
+推送到远程 `main` 分支后，GitHub Actions 会自动安装字体工具、裁剪字体、构建和发布网站。日常写文章不需要手动裁剪或本地构建；本地构建只用于提前检查。
+
+完整源字体保存在 `assets/fonts/`，构建不再依赖本机 Typora。网站只发布裁剪后的 WOFF2，不会让访客下载完整 TTF。
+
+如果需要本地预览或构建，首次先在 Python 环境中安装字体工具：
+
+```sh
+python -m pip install -r scripts/requirements-fonts.txt
+```
+
+`npm run dev` 启动前也会自动更新字体。开发服务运行期间新增用字后，可重启服务，或单独执行：
 
 ```sh
 npm run font:subset
 ```
 
-脚本依赖 FontTools 的 `pyftsubset`（可用 `python -m pip install fonttools brotli` 安装），默认读取 Typora 的 Phycat 主题字体，并根据所有文章重新生成网页字体。如果字体不在默认位置，可通过 `LXGW_WENKAI_SOURCE=/字体路径/LXGWWenKai-Regular.ttf npm run font:subset` 指定；也可用 `PYFTSUBSET` 指定命令位置。生成后再运行 `npm run build` 即可。
+脚本使用 FontTools 的 `pyftsubset`。可通过 `LXGW_WENKAI_SOURCE=/字体路径/LXGWWenKai-Regular.ttf npm run font:subset` 指定其他完整源字体，也可用 `PYFTSUBSET` 指定命令位置。字体生成失败时会中止构建，避免发布未更新的字体。
 
 ## 图片放哪里
 
@@ -378,13 +388,13 @@ Cmd + Shift + R
 
 ## 发布到 GitHub Pages
 
-先构建检查：
+可选：先在本地构建检查（推送后的自动部署也会执行构建）：
 
 ```sh
 npm run build
 ```
 
-如果构建成功，再提交并推送：
+提交并推送：
 
 ```sh
 git status

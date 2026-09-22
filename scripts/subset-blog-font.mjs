@@ -1,12 +1,12 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { homedir, tmpdir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const projectRoot = resolve(import.meta.dirname, '..');
 const defaultFontSource = join(
-  homedir(),
-  'Library/Application Support/abnerworks.Typora/themes/phycat/LXGWWenKai-Regular.ttf',
+  projectRoot,
+  'assets/fonts/LXGWWenKai-Regular-v1.521.ttf',
 );
 const fontSource = process.env.LXGW_WENKAI_SOURCE || defaultFontSource;
 const outputFile = join(projectRoot, 'src/assets/fonts/lxgw-wenkai-v1.521-blog.woff2');
@@ -26,7 +26,7 @@ const corpusFiles = [
 
 if (!existsSync(fontSource)) {
   console.error(`找不到霞鹜文楷源字体：${fontSource}`);
-  console.error('可通过 LXGW_WENKAI_SOURCE 指定 LXGWWenKai-Regular.ttf 的位置。');
+  console.error('请检查仓库中的 assets/fonts 源字体；也可通过 LXGW_WENKAI_SOURCE 指定完整字体路径。');
   process.exit(1);
 }
 
@@ -57,6 +57,9 @@ try {
     { cwd: projectRoot, encoding: 'utf8' },
   );
 
+  if (result.error?.code === 'ENOENT') {
+    throw new Error('找不到 pyftsubset，请先运行 python -m pip install -r scripts/requirements-fonts.txt；也可通过 PYFTSUBSET 指定命令路径。');
+  }
   if (result.error) throw result.error;
   if (result.status !== 0) {
     throw new Error(result.stderr || `pyftsubset 退出状态：${result.status}`);
