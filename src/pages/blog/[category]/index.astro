@@ -1,0 +1,26 @@
+---
+import WritingArchive from '../../../components/WritingArchive.astro';
+import { CATEGORIES, sortPostsByDateDesc } from '../../../lib/writing.js';
+
+export async function getStaticPaths() {
+  const allPosts = Object.values(import.meta.glob('../../../content/blog/*.md', { eager: true }));
+
+  return CATEGORIES.map((category) => {
+    const posts = sortPostsByDateDesc(
+      allPosts.filter((post) => post.frontmatter.category === category.key),
+    );
+
+    return {
+      params: { category: category.key },
+      props: {
+        category,
+        posts,
+      },
+    };
+  });
+}
+
+const { category, posts } = Astro.props;
+---
+
+<WritingArchive category={category} posts={posts} />

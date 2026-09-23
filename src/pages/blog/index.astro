@@ -2,7 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   CATEGORIES,
-  PAGE_SIZE,
   formatDate,
   sortPostsByDateDesc,
 } from '../../lib/writing.js';
@@ -16,62 +15,156 @@ const postsByCategory = CATEGORIES.map((category) => {
 
   return {
     ...category,
-    posts: categoryPosts.slice(0, PAGE_SIZE),
+    posts: categoryPosts,
     totalPosts: categoryPosts.length,
-    totalPages: Math.ceil(categoryPosts.length / PAGE_SIZE),
   };
 });
 ---
 
-<BaseLayout title="写作目录 | 张浩">
-  <section class="hero">
-    <h1>写作目录</h1>
-  </section>
+<BaseLayout title="文章 | 张浩" writing>
+  <div class="writing-index">
+    <header class="writing-index__header">
+      <h1>文章</h1>
+    </header>
 
-  <div class="writing-tabs" aria-label="文章专栏">
-    {CATEGORIES.map((category) => <a href={`#${category.key}`}>{category.title}</a>)}
-  </div>
+    <div class="writing-columns">
+      {
+        postsByCategory.map((category) => (
+          <section class="writing-column" id={category.key} aria-labelledby={`${category.key}-title`}>
+            <div class="writing-column__heading">
+              <h2 id={`${category.key}-title`}>{category.title}</h2>
+              <span>{category.totalPosts} 篇</span>
+            </div>
 
-  {
-    postsByCategory.map((category) => (
-      <section class="section writing-section" id={category.key}>
-        <div class="writing-heading">
-          <h2>{category.title}</h2>
-          <span>{category.totalPosts} 篇</span>
-        </div>
-        {
-          category.posts.length > 0 ? (
-            <>
-              <ul class="writing-list">
+            {category.posts.length > 0 ? (
+              <ul class="writing-column__list">
                 {category.posts.map((post) => (
-                  <li class="writing-row">
+                  <li>
+                    <a href={`/blog/${post.frontmatter.slug}/`}>{post.frontmatter.title}</a>
                     <time datetime={formatDate(post.frontmatter.date)}>
-                      {formatDate(post.frontmatter.date)}
+                      {formatDate(post.frontmatter.date).replaceAll('-', '.')}
                     </time>
-                    <div>
-                      <h3>
-                        <a href={`/blog/${post.frontmatter.slug}/`}>{post.frontmatter.title}</a>
-                      </h3>
-                    </div>
-                    <span class="writing-arrow">›</span>
                   </li>
                 ))}
               </ul>
-              <nav class="pagination" aria-label={`${category.title}分页`}>
-                <span class="disabled">上一页</span>
-                <span>第 1 / {category.totalPages} 页</span>
-                {category.totalPages > 1 ? (
-                  <a href={`/blog/${category.key}/2/`}>下一页</a>
-                ) : (
-                  <span class="disabled">下一页</span>
-                )}
-              </nav>
-            </>
-          ) : (
-            <p class="empty-state">暂无文章。</p>
-          )
-        }
-      </section>
-    ))
-  }
+            ) : (
+              <p class="empty-state">暂无文章。</p>
+            )}
+          </section>
+        ))
+      }
+    </div>
+  </div>
 </BaseLayout>
+
+<style>
+  .writing-index__header {
+    margin-bottom: 28px;
+  }
+
+  .writing-index__header h1 {
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .writing-columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+
+  .writing-column {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 22px 22px 18px;
+    border: 1px solid rgba(226, 232, 240, 0.78);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      0 8px 28px rgba(15, 23, 42, 0.045),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(18px) saturate(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  }
+
+  .writing-column__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .writing-column__heading h2 {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .writing-column__heading span {
+    flex: none;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .writing-column__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .writing-column__list li {
+    display: grid;
+    gap: 2px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .writing-column__list li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .writing-column__list a {
+    width: fit-content;
+    color: var(--accent);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .writing-column__list a:hover {
+    color: var(--accent-strong);
+  }
+
+  .writing-column__list time {
+    color: var(--muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 800px) {
+    .writing-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .writing-index__header {
+      margin-bottom: 20px;
+    }
+
+    .writing-columns {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .writing-column {
+      padding: 18px;
+    }
+  }
+</style>

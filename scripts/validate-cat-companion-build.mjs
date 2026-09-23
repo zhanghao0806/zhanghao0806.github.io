@@ -27,8 +27,19 @@ if (htmlFiles.length === 0) {
 }
 
 const pageErrors = [];
+let redirectCount = 0;
 for (const htmlPath of htmlFiles) {
   const html = await readFile(htmlPath, 'utf8');
+  // Astro's static redirects have no page layout or interactive components.
+  const redirectTarget = html.match(/<meta http-equiv="refresh" content="\d+;url=(\/[^" ]*)">/)?.[1];
+  if (redirectTarget && html.includes(`<link rel="canonical" href="${redirectTarget}">`)) {
+    const targetFile = path.join(distRoot, redirectTarget, 'index.html');
+    if (!htmlFiles.includes(targetFile)) {
+      pageErrors.push(`${path.relative(distRoot, htmlPath)} redirects to a missing page: ${redirectTarget}`);
+    }
+    redirectCount += 1;
+    continue;
+  }
   const mountCount = html.match(/<aside\b[^>]*\bdata-cat-companion(?:\s|=|>)/g)?.length ?? 0;
   if (mountCount !== 1) {
     pageErrors.push(`${path.relative(distRoot, htmlPath)} contains ${mountCount} cat companion mounts.`);
@@ -275,6 +286,6 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `Cat companion build is complete on all ${htmlFiles.length} pages; ` +
+  `Cat companion build is complete on all ${htmlFiles.length - redirectCount} content pages (${redirectCount} redirects checked); ` +
     `${lines.length} dialogue lines passed validation.`,
 );

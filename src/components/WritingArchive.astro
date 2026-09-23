@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { formatDate } from '../lib/writing.js';
+
+const { category, posts } = Astro.props;
+---
+
+<BaseLayout title={`${category.title} | 张浩`} writing>
+  <div class="writing-archive">
+    <a class="writing-archive__back" href="/blog/">← 文章</a>
+    <header class="writing-archive__heading">
+      <h1>{category.title}</h1>
+      <span>{posts.length} 篇</span>
+    </header>
+
+    <ul class="writing-list">
+      {
+        posts.map((post) => (
+          <li class="writing-row">
+            <time datetime={formatDate(post.frontmatter.date)}>
+              {formatDate(post.frontmatter.date).replaceAll('-', '.')}
+            </time>
+            <h2><a href={`/blog/${post.frontmatter.slug}/`}>{post.frontmatter.title}</a></h2>
+            <span class="writing-arrow" aria-hidden="true">→</span>
+          </li>
+        ))
+      }
+    </ul>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .writing-archive__back {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .writing-archive__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 12px 0 22px;
+  }
+
+  .writing-archive__heading h1 {
+    font-size: clamp(28px, 3vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .writing-archive__heading span {
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>

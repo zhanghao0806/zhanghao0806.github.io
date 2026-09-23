@@ -14,16 +14,37 @@ http://127.0.0.1:4321/
 https://zhanghao0806.github.io/
 ```
 
+## 一键发布网站（macOS）
+
+脚本位置：[publish.command](./publish.command)，完整路径：
+
+```text
+/Users/zhanghao/code/personal-homepage/publish.command
+```
+
+在 Finder 中双击该文件即可发布，也可以在项目根目录运行：
+
+```bash
+./publish.command
+```
+
+脚本会检查远程 `personal-homepage` 的 `main` 分支，运行 `npm run build`，将本地所有未被 `.gitignore` 忽略的新增、修改和删除自动提交，再推送到远程 `main`。提交说明自动包含发布时间，因此运行前请确保当前所有改动都准备好发布。
+
+推送会触发现有的 [GitHub Pages 部署流程](https://github.com/zhanghao0806/zhanghao0806.github.io/actions/workflows/deploy.yml)。等待流程成功后，[线上网站](https://zhanghao0806.github.io/)会自动更新。脚本中的“推送成功”表示代码已上传，部署结果请看流程页面；本地与远程完全一致时不会重复提交或触发部署。
+
+使用前需安装项目要求的 Node.js（至少 22.12.0）、npm、Git 和字体裁剪所需的 Python 工具（`python3 -m pip install -r scripts/requirements-fonts.txt`），并配置好 Git 提交身份与 GitHub 推送凭据。若缺少 `node_modules`，脚本会自动执行 `npm ci`。构建失败、Git 冲突、当前不在 `main` 或远程有未同步提交时，脚本会停止并显示原因；请处理后再次双击。推送失败时本地提交会保留，重新运行可继续推送。
+
 ## 常用目录
 
 ```text
+publish.command                       双击检查、提交并推送，触发线上更新
 src/pages/index.astro                  首页
 src/pages/projects.astro               项目页
 src/pages/blog/index.astro             文章目录页
 src/pages/blog/[slug].astro            文章详情页
 src/pages/about.astro                  关于我
 src/content/blog/                      所有文章 Markdown
-src/lib/writing.js                     写作分类、分页数量、日期格式
+src/lib/writing.js                     写作分类、日期格式
 src/layouts/BaseLayout.astro           全站布局和样式
 public/avatar.jpg                      导航头像
 public/favicon.jpg                     浏览器标签页图标
@@ -171,41 +192,13 @@ project:
 
 然后再改 `src/pages/projects.astro`，让它读取这些带 `project` 字段的文章自动生成卡片。现在为了简单稳定，项目卡片先采用手动维护。
 
-## 文章页面和分页逻辑
+## 文章目录和分类浏览
 
-文章目录页文件在：
+`src/pages/blog/index.astro` 按三个专栏显示全部文章，按日期从新到旧排序。桌面端为三栏，窄屏自动切换为两栏或单栏，通过浏览器页面滚动即可看到最后一篇；没有栏目内部滚动或“查看全部”按钮。
 
-```text
-src/pages/blog/index.astro
-```
+`src/pages/blog/[category]/index.astro` 提供单独的分类归档，使用 `src/components/WritingArchive.astro` 显示该分类的完整列表。旧的分类分页链接由 `src/pages/blog/[category]/[page].astro` 跳转到完整分类页，兼容已有链接。
 
-分类分页页文件在：
-
-```text
-src/pages/blog/[category]/[page].astro
-```
-
-分页配置在：
-
-```text
-src/lib/writing.js
-```
-
-当前每个专栏每页显示 5 篇：
-
-```js
-export const PAGE_SIZE = 5;
-```
-
-分页逻辑不需要你手动建文件夹，也不需要你手动创建第 1 页、第 2 页。你只需要持续往：
-
-```text
-src/content/blog/
-```
-
-添加 Markdown 文章。Astro 构建时会自动按分类和页码生成对应页面。
-
-如果某个专栏有 13 篇文章，且 `PAGE_SIZE = 5`，就会自动分成 3 页。
+持续往 `src/content/blog/` 添加 Markdown 文章即可，构建时会自动更新目录与文章数量。分类和日期格式在 `src/lib/writing.js` 维护，无需配置每页篇数。
 
 ## 关于页面怎么维护
 
@@ -287,15 +280,7 @@ reflections     杂思录
 
 “杂思录”统一收录学习回顾、生活随想、阅读与观察。旧的 `/notes/` 入口同步展示合并后的杂思录文章。修改分类时保留文章的 `slug`，已有文章链接仍然可用。
 
-文章目录会自动按 `category` 分类，并按 `date` 从新到旧排序。每个专栏每页显示 5 篇文章，分页数量在这里改：
-
-```text
-src/lib/writing.js
-```
-
-```js
-export const PAGE_SIZE = 5;
-```
+文章目录会自动按 `category` 分类，并按 `date` 从新到旧展示各分类的全部文章。新增文章会自动出现在对应栏目，直接滚动页面即可浏览。
 
 ### 文章字体自动更新
 
