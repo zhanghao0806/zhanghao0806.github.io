@@ -32,6 +32,10 @@ const headingStartDepth = hasToc
 
     <article class="article-page">
       <header class="article-header">
+        <a class="article-back" href={`/blog/#${post.frontmatter.category}`}>
+          <span aria-hidden="true">←</span>
+          返回文章列表
+        </a>
         <div class="article-header__labels">
           <p class="eyebrow">Writing</p>
           <p class="category">{categoryLabels[post.frontmatter.category]}</p>
