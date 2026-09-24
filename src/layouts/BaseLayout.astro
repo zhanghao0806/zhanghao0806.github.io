@@ -7,6 +7,7 @@ const {
   description = '个人技术博客与成长记录。',
   wide = false,
   writing = false,
+  back = false,
 } = Astro.props;
 
 const navItems = [
@@ -39,6 +40,14 @@ const isActive = (href) => {
         <span>张浩</span>
       </a>
       <nav aria-label="主导航">
+        {back && (
+          <a class="nav-back" href="/blog/" aria-label="返回上一页" title="返回上一页" data-history-back>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m10 6-6 6 6 6" />
+              <path d="M4 12h16" />
+            </svg>
+          </a>
+        )}
         {
           navItems.map((item) => (
             <a href={item.href} class={isActive(item.href) ? 'active' : ''}>
@@ -93,6 +102,10 @@ const isActive = (href) => {
     --site-shell-max-width: 1320px;
   }
 
+  body.layout-wide .site-header {
+    width: min(100% - 40px, 1180px);
+  }
+
   a {
     color: var(--accent);
     text-decoration: none;
@@ -109,7 +122,6 @@ const isActive = (href) => {
   }
 
   @media (min-width: 1400px) {
-    body.layout-wide .site-header,
     body.layout-wide main {
       margin-right: auto;
       margin-left: max(
@@ -164,6 +176,19 @@ const isActive = (href) => {
     padding: 6px 12px;
     border-radius: 8px;
     color: var(--muted);
+  }
+
+  .site-header nav .nav-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    padding: 6px;
+  }
+
+  .nav-back svg {
+    width: 18px;
+    height: 18px;
   }
 
   .site-header nav a.active,

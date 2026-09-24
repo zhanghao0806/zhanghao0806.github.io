@@ -23,7 +23,7 @@ const headingStartDepth = hasToc
 
 ---
 
-<BaseLayout title={`${post.frontmatter.title} | Blog`} wide>
+<BaseLayout title={`${post.frontmatter.title} | Blog`} wide back>
   <div
     class:list={['article-reading-layout', { 'has-toc': hasToc }]}
     data-heading-start-depth={headingStartDepth}
@@ -32,14 +32,7 @@ const headingStartDepth = hasToc
 
     <article class="article-page">
       <header class="article-header">
-        <a class="article-back" href={`/blog/#${post.frontmatter.category}`}>
-          <span aria-hidden="true">←</span>
-          返回文章列表
-        </a>
-        <div class="article-header__labels">
-          <p class="eyebrow">Writing</p>
-          <p class="category">{categoryLabels[post.frontmatter.category]}</p>
-        </div>
+        <p class="category">{categoryLabels[post.frontmatter.category]}</p>
         <h1>{post.frontmatter.title}</h1>
         <p class="meta">{formatDate(post.frontmatter.date)}</p>
       </header>
@@ -50,3 +43,13 @@ const headingStartDepth = hasToc
     </article>
   </div>
 </BaseLayout>
+
+<script>
+  document.querySelector<HTMLAnchorElement>('[data-history-back]')?.addEventListener('click', (event) => {
+    const previousUrl = document.referrer;
+    if (previousUrl && window.history.length > 1 && new URL(previousUrl).origin === window.location.origin) {
+      event.preventDefault();
+      window.history.back();
+    }
+  });
+</script>

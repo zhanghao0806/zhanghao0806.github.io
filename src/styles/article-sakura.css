@@ -70,45 +70,6 @@ html {
   background: var(--sakura-gradient);
 }
 
-.article-header .article-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  width: fit-content;
-  margin-bottom: 18px;
-  color: var(--article-muted);
-  font-family: var(--article-font);
-  font-size: 14px;
-  line-height: 1.4;
-  transition: color 160ms ease;
-}
-
-.article-header .article-back:hover {
-  color: var(--sakura-deep);
-}
-
-.article-header .article-back:focus-visible {
-  border-radius: 4px;
-  outline: 2px solid var(--sakura);
-  outline-offset: 4px;
-}
-
-.article-header__labels {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 9px;
-}
-
-.article-header .eyebrow {
-  color: var(--sakura-deep);
-  font-family: var(--article-font);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .article-header .category {
   display: inline-flex;
   width: fit-content;
