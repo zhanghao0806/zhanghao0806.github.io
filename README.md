@@ -16,23 +16,17 @@ https://zhanghao0806.github.io/
 
 ## 一键发布网站（macOS）
 
-脚本位置：[publish.command](./publish.command)，完整路径：
+脚本位置：
 
 ```text
 /Users/zhanghao/code/personal-homepage/publish.command
 ```
 
-在 Finder 中双击该文件即可发布，也可以在项目根目录运行：
 
-```bash
-./publish.command
-```
 
 脚本会检查远程 `personal-homepage` 的 `main` 分支，运行 `npm run build`，将本地所有未被 `.gitignore` 忽略的新增、修改和删除自动提交，再推送到远程 `main`。提交说明自动包含发布时间，因此运行前请确保当前所有改动都准备好发布。
 
 推送会触发现有的 [GitHub Pages 部署流程](https://github.com/zhanghao0806/zhanghao0806.github.io/actions/workflows/deploy.yml)。等待流程成功后，[线上网站](https://zhanghao0806.github.io/)会自动更新。脚本中的“推送成功”表示代码已上传，部署结果请看流程页面；本地与远程完全一致时不会重复提交或触发部署。
-
-使用前需安装项目要求的 Node.js（至少 22.12.0）、npm、Git 和字体裁剪所需的 Python 工具（`python3 -m pip install -r scripts/requirements-fonts.txt`），并配置好 Git 提交身份与 GitHub 推送凭据。若缺少 `node_modules`，脚本会自动执行 `npm ci`。构建失败、Git 冲突、当前不在 `main` 或远程有未同步提交时，脚本会停止并显示原因；请处理后再次双击。推送失败时本地提交会保留，重新运行可继续推送。
 
 ## 常用目录
 
@@ -289,20 +283,6 @@ reflections     杂思录
 推送到远程 `main` 分支后，GitHub Actions 会自动安装字体工具、裁剪字体、构建和发布网站。日常写文章不需要手动裁剪或本地构建；本地构建只用于提前检查。
 
 完整源字体保存在 `assets/fonts/`，构建不再依赖本机 Typora。网站只发布裁剪后的 WOFF2，不会让访客下载完整 TTF。
-
-如果需要本地预览或构建，首次先在 Python 环境中安装字体工具：
-
-```sh
-python -m pip install -r scripts/requirements-fonts.txt
-```
-
-`npm run dev` 启动前也会自动更新字体。开发服务运行期间新增用字后，可重启服务，或单独执行：
-
-```sh
-npm run font:subset
-```
-
-脚本使用 FontTools 的 `pyftsubset`。可通过 `LXGW_WENKAI_SOURCE=/字体路径/LXGWWenKai-Regular.ttf npm run font:subset` 指定其他完整源字体，也可用 `PYFTSUBSET` 指定命令位置。字体生成失败时会中止构建，避免发布未更新的字体。
 
 ## 图片放哪里
 

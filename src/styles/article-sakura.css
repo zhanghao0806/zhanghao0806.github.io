@@ -38,7 +38,6 @@ html {
 .article-page {
   min-width: 0;
   width: 100%;
-  max-width: 1040px;
   margin: 0 auto;
   overflow: clip;
   border: 1px solid rgba(255, 183, 205, 0.46);
