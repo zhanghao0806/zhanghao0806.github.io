@@ -43,13 +43,3 @@ const headingStartDepth = hasToc
     </article>
   </div>
 </BaseLayout>
-
-<script>
-  document.querySelector<HTMLAnchorElement>('[data-history-back]')?.addEventListener('click', (event) => {
-    const previousUrl = document.referrer;
-    if (previousUrl && window.history.length > 1 && new URL(previousUrl).origin === window.location.origin) {
-      event.preventDefault();
-      window.history.back();
-    }
-  });
-</script>

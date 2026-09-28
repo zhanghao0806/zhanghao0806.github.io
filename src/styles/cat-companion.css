@@ -1629,3 +1629,37 @@
     transform: none !important;
   }
 }
+
+/* The body artwork duplicates the upper ruff behind the independently moving head.
+   Fade that overlap out below the face so head turns cannot reveal a stationary tuft. */
+[data-pet-asset-root] > [data-asset-part="body"] {
+  mask-image: linear-gradient(to bottom, transparent 28%, #000 34%);
+}
+
+/* Land using the actual interactive cat, including its current eyes and book. */
+[data-cat-companion][data-arrival-phase="landing"] [data-pet-walk-root] {
+  display: none;
+}
+
+[data-cat-companion][data-arrival-phase="landing"] [data-pet-asset-root] {
+  animation: cat-companion-land var(--pet-arrival-landing-duration, 595ms) ease-out both;
+  transform-origin: 50% 74%;
+}
+
+@keyframes cat-companion-land {
+  0% { transform: translateY(-7px); }
+  24% { transform: translateY(2px) scaleY(0.985); }
+  58% { transform: translateY(-1px); }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-cat-companion][data-arrival-phase="landing"] [data-pet-asset-root] {
+    animation: cat-companion-arrival-fade var(--pet-arrival-landing-duration, 190ms) linear both;
+  }
+}
+
+@keyframes cat-companion-arrival-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

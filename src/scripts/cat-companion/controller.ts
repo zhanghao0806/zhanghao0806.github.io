@@ -23,7 +23,7 @@ const RAPID_CLICK_WINDOW_MS = 1_500;
 const RAPID_CLICK_LIMIT = 4;
 const RAPID_CLICK_COOLDOWN_MS = 4_000;
 const IDLE_INTERVAL_MS = 15_000;
-const SPEECH_DISPLAY_MS = 5_000;
+const SPEECH_DISPLAY_MS = 10_000;
 const ARTICLE_TOC_OVERLAY_QUERY = '(max-width: 1050px)';
 const NORMAL_CHARACTER_WIDTH = 172;
 const NORMAL_CHARACTER_HEIGHT = 258;
@@ -1306,12 +1306,9 @@ class CatCompanionController {
 
     if (this.#reducedMotionQuery.matches) {
       const fadeMs = Math.max(160, Math.min(220, this.#arrivalReducedMotionFadeMs));
-      setActiveFrame(this.#arrivalFrames.at(-1)!);
-      this.#root.dataset.arrivalPhase = 'transition';
-      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-      if (runVersion !== this.#arrivalRunVersion || this.#hidden || document.hidden) return;
-      this.#root.style.setProperty('--pet-arrival-handoff-duration', `${fadeMs}ms`);
-      this.#root.dataset.arrivalPhase = 'handoff';
+      // Reduced motion also uses the live face; never flash the baked seated sprites.
+      this.#root.style.setProperty('--pet-arrival-landing-duration', `${fadeMs}ms`);
+      this.#root.dataset.arrivalPhase = 'landing';
       await new Promise<void>((resolve) => window.setTimeout(resolve, fadeMs));
       if (runVersion === this.#arrivalRunVersion) {
         this.#stopArrival(false);
@@ -1329,7 +1326,7 @@ class CatCompanionController {
     }
 
     this.#root.dataset.arrivalPhase = 'transition';
-    for (let index = 0; index < this.#arrivalFrames.length; index += 1) {
+    for (let index = 0; index < 5; index += 1) {
       if (runVersion !== this.#arrivalRunVersion || this.#hidden || document.hidden) return;
       setActiveFrame(this.#arrivalFrames[index]);
       await new Promise<void>((resolve) =>
@@ -1338,10 +1335,13 @@ class CatCompanionController {
     }
 
     if (runVersion !== this.#arrivalRunVersion || this.#hidden || document.hidden) return;
-    const handoffMs = this.#arrivalDurationsMs.at(-1) ?? 160;
-    this.#root.style.setProperty('--pet-arrival-handoff-duration', `${handoffMs}ms`);
-    this.#root.dataset.arrivalPhase = 'handoff';
-    await new Promise<void>((resolve) => window.setTimeout(resolve, handoffMs));
+    // From first contact with the book onward, keep the same live layers as idle.
+    // The old landing/settled sprites contain a different face and stale eye artwork.
+    const landingMs = this.#arrivalDurationsMs.slice(5).reduce((sum, duration) => sum + duration, 0);
+    this.#root.style.setProperty('--pet-arrival-landing-duration', `${landingMs}ms`);
+    this.#root.dataset.arrivalPhase = 'landing';
+    for (const frame of [...this.#walkFrames, ...this.#arrivalFrames]) delete frame.dataset.active;
+    await new Promise<void>((resolve) => window.setTimeout(resolve, landingMs));
     if (runVersion === this.#arrivalRunVersion) {
       this.#stopArrival(false);
       this.#finishRecall();
@@ -1357,6 +1357,7 @@ class CatCompanionController {
     delete this.#root.dataset.arrivalPhase;
     this.#root.style.removeProperty('--pet-walk-duration');
     this.#root.style.removeProperty('--pet-arrival-handoff-duration');
+    this.#root.style.removeProperty('--pet-arrival-landing-duration');
     this.#giantButton.disabled = false;
     for (const frame of [...this.#walkFrames, ...this.#arrivalFrames]) delete frame.dataset.active;
   }

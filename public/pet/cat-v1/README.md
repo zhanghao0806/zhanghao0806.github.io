@@ -60,10 +60,14 @@ more than `1.5px` in the runtime canvas while following gaze. The source-reviewe
   WebP frames live under `runtime/arrival/` and match `arrival.canvas`.
 - Composite each `384x512` walk frame into the arrival coordinate space at `(0, 64)` before
   playing the ten arrival frames with `arrival.durationsMs`.
-- The sequence is slow walk, blue-book magic, jump, landing, and stable sitting. Frame 10 must
-  visually match the neutral layered static composite so the handoff to live layers has no visible jump.
-- With reduced motion, skip directly to frame 10 and fade into the live composite over the
-  configured `arrival.reducedMotionFadeMs` interval.
+- Playback uses the eight walk frames followed by arrival frames 1–5 (book magic and jump).
+  At first landing, switch directly to the live layered cat and animate a small settling motion
+  for the combined duration of frames 6–10. The preserved landing/seated sprites are not displayed:
+  their baked face differs from the current interactive eyes.
+- With reduced motion, fade in the live composite directly over the configured
+  `arrival.reducedMotionFadeMs` interval; no baked seated frame is displayed.
+- The body layer has a CSS alpha mask over its duplicated upper ruff (28–34% of canvas height),
+  keeping that stationary overlap hidden behind the independently animated head.
 
 ## Activation checklist
 
