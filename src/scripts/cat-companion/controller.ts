@@ -23,7 +23,8 @@ const RAPID_CLICK_WINDOW_MS = 1_500;
 const RAPID_CLICK_LIMIT = 4;
 const RAPID_CLICK_COOLDOWN_MS = 4_000;
 const IDLE_INTERVAL_MS = 15_000;
-const SPEECH_DISPLAY_MS = 10_000;
+const INTERACTION_SPEECH_DISPLAY_MS = 7_000;
+const IDLE_SPEECH_DISPLAY_MS = 12_000;
 const ARTICLE_TOC_OVERLAY_QUERY = '(max-width: 1050px)';
 const NORMAL_CHARACTER_WIDTH = 172;
 const NORMAL_CHARACTER_HEIGHT = 258;
@@ -950,7 +951,8 @@ class CatCompanionController {
     if (request.announce) this.#liveRegion.textContent = line.text;
 
     try {
-      await wait(SPEECH_DISPLAY_MS, signal);
+      const displayMs = line.trigger === 'idle' ? IDLE_SPEECH_DISPLAY_MS : INTERACTION_SPEECH_DISPLAY_MS;
+      await wait(displayMs, signal);
       this.#root.dataset.mouth = 'closed';
     } catch {
       // Hiding or navigating intentionally cancels the current line.

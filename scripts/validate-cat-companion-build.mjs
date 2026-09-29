@@ -191,7 +191,9 @@ if (petStyles.includes('--pet-asset-tablet-') || petStyles.includes('--pet-asset
 
 const integrationContracts = [
   [petController, 'const MAX_GIANT_SCALE = 3;', 'Giant mode must cap desktop scaling at 3x.'],
-  [petController, 'const SPEECH_DISPLAY_MS = 10_000;', 'Every dialogue line must remain visible for ten seconds.'],
+  [petController, 'const INTERACTION_SPEECH_DISPLAY_MS = 7_000;', 'Interaction dialogue must remain visible for seven seconds.'],
+  [petController, 'const IDLE_SPEECH_DISPLAY_MS = 12_000;', 'Philosophical idle dialogue must remain visible for twelve seconds.'],
+  [petController, "line.trigger === 'idle' ? IDLE_SPEECH_DISPLAY_MS : INTERACTION_SPEECH_DISPLAY_MS", 'Dialogue duration must depend on its trigger.'],
   [petController, 'this.#bubbleText.textContent = line.text;', 'Dialogue text must appear in full without typewriter loading.'],
   [petController, 'const GIANT_MOTION_GUTTER = 12;', 'Giant contain sizing must reserve room for ambient motion.'],
   [petController, 'this.#root.dataset.sizeMode = this.#sizeMode;', 'Giant mode must expose its data state.'],
