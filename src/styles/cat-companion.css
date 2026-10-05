@@ -486,6 +486,22 @@
   z-index: 5;
 }
 
+/* Deform the already-composited face once, with no duplicate eye/face overlay.
+   Eye contours, iris, pupil and blinking remain registered through the same field. */
+[data-asset-head-motion] {
+  filter: url(#cat-left-eye-shape);
+}
+
+/* Blend the lower ruff into the body and the viewer-left temple into its ear root.
+   The small upper fade stays inside the opaque ear/head overlap, so the outer
+   silhouette remains intact instead of revealing a cutout edge across the fur. */
+[data-asset-head-motion] > [data-asset-part="head"] {
+  mask-image:
+    linear-gradient(to bottom, #000 40%, transparent 49%),
+    radial-gradient(ellipse 6% 3% at 47% 14%, transparent 0%, #000 100%);
+  mask-composite: intersect;
+}
+
 [data-cat-companion][data-reaction="paw"] [data-pet-asset-root] > [data-asset-part="paw"] {
   transform: rotate(-16deg) translateY(-3%);
 }
