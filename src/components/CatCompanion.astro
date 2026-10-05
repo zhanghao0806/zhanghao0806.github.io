@@ -3,41 +3,7 @@ import '../styles/cat-companion.css';
 
 const pagePath = Astro.url.pathname;
 
-// A smooth displacement field for the cat's anatomical LEFT (viewer-right) eye.
-// It remaps the assembled layers together, preserving their color and area ratios.
-// Coordinates use the existing 384×576 artwork; outside the eye the field is neutral.
-const eyeCenter = { x: 264.6, y: 106 };
-const fieldRows = Array.from({ length: 56 }, (_, row) => {
-  const y = 82 + row;
-  const sourceY = eyeCenter.y + (y - eyeCenter.y - 4.8) / 1.13;
-  const green = Math.max(0, Math.min(255, Math.round(128 + (sourceY - y) / 48 * 255)));
-  const redAt = (x: number) => Math.round(128 + ((x - eyeCenter.x) / 1.08 - (x - eyeCenter.x)) / 32 * 255);
-  return `<linearGradient id="row-${row}"><stop stop-color="rgb(${redAt(232)},${green},128)"/><stop offset="1" stop-color="rgb(${redAt(298)},${green},128)"/></linearGradient>
-    <rect x="232" y="${y}" width="66" height="1" fill="url(#row-${row})"/>`;
-}).join('');
-const eyeField = `<svg xmlns="http://www.w3.org/2000/svg" width="384" height="576" viewBox="0 0 384 576">
-  <defs><radialGradient id="falloff"><stop offset="0.6" stop-color="white"/><stop offset="1" stop-color="black"/></radialGradient>
-  <mask id="region"><ellipse cx="264.6" cy="110.8" rx="31" ry="27" fill="url(#falloff)"/></mask></defs>
-  <rect width="384" height="576" fill="rgb(128,128,128)"/>
-  <g mask="url(#region)">${fieldRows}</g>
-</svg>`;
-const eyeFieldUrl = `data:image/svg+xml,${encodeURIComponent(eyeField)}`;
 ---
-
-<svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
-  <defs>
-    <filter id="cat-left-eye-shape" x="-0.05" y="-0.05" width="1.1" height="1.1"
-      primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
-      <feImage href={eyeFieldUrl} x="0" y="0" width="1" height="1" result="eye-field" />
-      <feComponentTransfer in="eye-field" result="centered-field">
-        <feFuncR type="linear" slope="1" intercept="-0.0019607843" />
-        <feFuncG type="linear" slope="1" intercept="-0.0019607843" />
-      </feComponentTransfer>
-      <feDisplacementMap in="SourceGraphic" in2="centered-field" scale="0.0833333333"
-        xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </defs>
-</svg>
 
 <aside
   class="cat-companion"

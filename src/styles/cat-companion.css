@@ -486,12 +486,6 @@
   z-index: 5;
 }
 
-/* Deform the already-composited face once, with no duplicate eye/face overlay.
-   Eye contours, iris, pupil and blinking remain registered through the same field. */
-[data-asset-head-motion] {
-  filter: url(#cat-left-eye-shape);
-}
-
 /* Blend the lower ruff into the body and the viewer-left temple into its ear root.
    The small upper fade stays inside the opaque ear/head overlap, so the outer
    silhouette remains intact instead of revealing a cutout edge across the fur. */
@@ -832,19 +826,20 @@
   width: 11px;
 }
 
-[data-cat-companion][data-state="attentive"] [data-pet-part^="eye-"] {
+/* Use the previously attentive eye size at rest too: hovering must not resize it. */
+[data-cat-companion] [data-pet-part^="eye-"] {
   transform: scale(1.04);
 }
 
-[data-cat-companion][data-state="attentive"] [data-asset-part^="eye-base-"] {
+[data-cat-companion] [data-asset-part^="eye-base-"] {
   transform: scale(1.025);
 }
 
-[data-cat-companion][data-state="attentive"] [data-pet-part^="pupil-"] {
+[data-cat-companion] [data-pet-part^="pupil-"] {
   width: 10px;
 }
 
-[data-cat-companion][data-state="attentive"] [data-asset-part^="pupil-"] {
+[data-cat-companion] [data-asset-part^="pupil-"] {
   transform: translate(var(--pet-asset-gaze-x), var(--pet-asset-gaze-y)) scale(1.08);
 }
 
