@@ -268,7 +268,7 @@ Transpile 之后的电路深度不能太深。
 
 大致长这样：
 
-```qasm
+```text
 OPENQASM 3.0;
 include "stdgates.inc";
 qubit[3] q;
