@@ -278,6 +278,10 @@ html {
   color: var(--article-ink);
 }
 
+.article-prose > p[data-paragraph-indent="true"] {
+  text-indent: 2em;
+}
+
 .article-prose :is(ul, ol) {
   padding-left: 1.55em;
   margin: 0.25em 0 0.9em;

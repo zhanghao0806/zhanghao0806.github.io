@@ -3,6 +3,7 @@ import { unified } from '@astrojs/markdown-remark';
 import { defineConfig } from 'astro/config';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
+import remarkParagraphIndent from './src/lib/remark-paragraph-indent.mjs';
 
 function remarkArticleImagePerformance() {
   return (tree) => {
@@ -30,7 +31,7 @@ export default defineConfig({
       theme: 'github-light',
     },
     processor: unified({
-      remarkPlugins: [remarkMath, remarkArticleImagePerformance],
+      remarkPlugins: [remarkMath, remarkParagraphIndent, remarkArticleImagePerformance],
       rehypePlugins: [rehypeKatex],
     }),
   },
