@@ -1,5 +1,9 @@
 # build output
 dist/
+# Fonts and manifest are generated before development and production builds.
+/public/fonts/songti-*.woff2
+/src/generated/article-fonts.json
+/src/generated/article-fonts.json.tmp
 # generated types
 .astro/
 

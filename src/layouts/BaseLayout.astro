@@ -31,6 +31,7 @@ const isActive = (href) => {
     <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <slot name="head" />
   </head>
   <body class:list={{ 'layout-writing': writing }}>
     <header class="site-header">

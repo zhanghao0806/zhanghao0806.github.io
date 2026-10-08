@@ -14,8 +14,8 @@ html {
   --sakura-gradient: linear-gradient(100deg, #ffb7cd, #ff7096 48%, #ffb7cd);
   --article-ink: #332d30;
   --article-muted: #776a70;
-  /* Use installed Songti fonts so article text needs no font download. */
-  --article-font: "Songti SC", "STSong", "SimSun", "宋体",
+  /* Each article downloads its own character subset of the same Songti family. */
+  --article-font: "Article Songti", "Songti SC", "STSong", "SimSun", "宋体",
     "Noto Serif CJK SC", "Noto Serif SC", "Source Han Serif SC", serif;
   display: block;
   font-family: var(--article-font);

@@ -3,6 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleToc from '../../components/ArticleToc.astro';
 import { categoryLabels, formatDate } from '../../lib/writing.js';
 import '../../styles/article-sakura.css';
+import { basename } from 'node:path';
+import articleFonts from '../../generated/article-fonts.json';
 
 export async function getStaticPaths() {
   const posts = Object.values(import.meta.glob('../../content/blog/*.md', { eager: true }));
@@ -14,6 +16,12 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
+const font = articleFonts[basename(post.file)];
+if (!font) throw new Error(`缺少文章字体：${post.file}，请运行 npm run font:subset。`);
+const fontFaces = `
+  @font-face { font-family: "Article Songti"; src: url("${font.regular}") format("woff2"); font-style: normal; font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Article Songti"; src: url("${font.bold}") format("woff2"); font-style: normal; font-weight: 700; font-display: swap; }
+`;
 const Content = post.Content;
 const headings = post.getHeadings();
 const hasToc = headings.length > 0;
@@ -24,6 +32,11 @@ const headingStartDepth = hasToc
 ---
 
 <BaseLayout title={`${post.frontmatter.title} | Blog`} back>
+  <Fragment slot="head">
+    <link rel="preload" href={font.regular} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={font.bold} as="font" type="font/woff2" crossorigin="anonymous" />
+    <style is:inline set:html={fontFaces} />
+  </Fragment>
   <div
     class:list={['article-reading-layout', { 'has-toc': hasToc }]}
     data-heading-start-depth={headingStartDepth}
