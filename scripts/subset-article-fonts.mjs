@@ -39,6 +39,18 @@ for (const article of readdirSync(blogDirectory).filter(name => name.endsWith('.
     outputs: Object.fromEntries(Object.entries(files).map(([style, name]) => [style, join(output, name)])) });
 }
 
+// One shared regular font covers every cat line, independently of article text.
+const dialogue = JSON.parse(readFileSync(join(root, 'src/data/pet-lines.zh-CN.json'), 'utf8'));
+const catText = [...new Set(dialogue.map(line => line.text).join('\n')
+  + '…‘’“”–—' + Array.from({length: 95}, (_, i) => String.fromCharCode(32 + i)).join(''))].sort().join('');
+const catFingerprint = hash(sourceHash + catText).slice(0, 20);
+const catFile = `songti-${catFingerprint}-regular.woff2`;
+manifest.__catDialogue = { fingerprint: catFingerprint, regular: `/fonts/${catFile}` };
+if (previous.__catDialogue?.fingerprint !== catFingerprint || !existsSync(join(output, catFile))) {
+  jobs.push({ article: '猫咪台词', text: catText, fingerprint: catFingerprint, sources,
+    outputs: { Regular: join(output, catFile) } });
+}
+
 if (jobs.length) {
   const temp = mkdtempSync(join(tmpdir(), 'article-songti-'));
   try {
@@ -55,14 +67,14 @@ if (jobs.length) {
 
 writeFileSync(`${manifestPath}.tmp`, JSON.stringify(manifest, null, 2) + '\n');
 renameSync(`${manifestPath}.tmp`, manifestPath);
-const used = new Set(Object.values(manifest).flatMap(font => [font.regular, font.bold]));
+const used = new Set(Object.values(manifest).flatMap(font => [font.regular, font.bold].filter(Boolean)));
 for (const name of readdirSync(output)) {
   if (/^songti-[a-f0-9]{20}-(regular|bold)\.woff2$/.test(name) && !used.has(`/fonts/${name}`)) {
     rmSync(join(output, name));
   }
 }
-const sizes = Object.entries(manifest).map(([article, font]) => ({article,
+const sizes = Object.entries(manifest).filter(([article]) => article !== '__catDialogue').map(([article, font]) => ({article,
   kib: Math.ceil((statSync(join(root, 'public', font.regular)).size
     + statSync(join(root, 'public', font.bold)).size) / 1024),
 }));
-console.log(`宋体准备完成：${sizes.length} 篇文章，每篇两种字重共 ${Math.min(...sizes.map(s => s.kib))}–${Math.max(...sizes.map(s => s.kib))} KiB；本次更新 ${jobs.length} 篇。`);
+console.log(`宋体准备完成：${sizes.length} 篇文章，每篇两种字重共 ${Math.min(...sizes.map(s => s.kib))}–${Math.max(...sizes.map(s => s.kib))} KiB；猫咪共用字体 ${Math.ceil(statSync(join(output, catFile)).size / 1024)} KiB；本次更新 ${jobs.length} 组。`);

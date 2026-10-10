@@ -15,7 +15,7 @@ def is_cjk(character):
 
 jobs = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 for job in jobs:
-    for style in ("Regular", "Bold"):
+    for style in job["outputs"]:
         font = TTFont(job["sources"][style], recalcTimestamp=False)
         cmap = font.getBestCmap()
         missing = sorted({char for char in job["text"] if is_cjk(char) and ord(char) not in cmap})

@@ -1487,8 +1487,9 @@
   background: #f3dfbf;
   box-shadow: 0 8px 22px rgba(91, 57, 35, 0.16);
   color: #563725;
+  font-family: "Cat Songti", "Songti SC", "STSong", "SimSun", serif;
   font-size: 14px;
-  font-weight: 620;
+  font-weight: 400;
   line-height: 1.55;
   text-wrap: pretty;
   pointer-events: none;

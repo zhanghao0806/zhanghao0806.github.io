@@ -1,10 +1,19 @@
 ---
 import '../styles/cat-companion.css';
+import fonts from '../generated/article-fonts.json';
 
 const pagePath = Astro.url.pathname;
+const catFontFace = `@font-face {
+  font-family: "Cat Songti";
+  src: url("${fonts.__catDialogue.regular}") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}`;
 
 ---
 
+<style is:inline set:html={catFontFace} />
 <aside
   class="cat-companion"
   data-cat-companion
