@@ -254,6 +254,8 @@ class CatCompanionController {
     this.#hideButton.addEventListener('click', this.#onHide, { signal });
     this.#hideButton.addEventListener('keydown', this.#onHideButtonKeyDown, { signal });
     this.#recallButton.addEventListener('click', this.#onRecall, { signal });
+    this.#recallButton.addEventListener('pointerdown', this.#onDragPointerDown, { signal });
+    this.#recallButton.addEventListener('lostpointercapture', this.#onDragPointerCancel, { signal });
     this.#recallButton.addEventListener('keydown', this.#onRecallButtonKeyDown, { signal });
 
     this.#reducedMotionQuery.addEventListener('change', this.#onMotionPreferenceChange, { signal });
@@ -405,13 +407,13 @@ class CatCompanionController {
 
   #onDragPointerDown = (event: PointerEvent): void => {
     if (
-      this.#hidden ||
+      (this.#hidden && event.currentTarget !== this.#recallButton) ||
       this.#root.dataset.arrivalPhase ||
-      this.#root.dataset.tocOpen === 'true' ||
+      (!this.#hidden && this.#root.dataset.tocOpen === 'true') ||
       !event.isPrimary ||
       (event.pointerType === 'mouse' && event.button !== 0) ||
       !(event.target instanceof Element) ||
-      !event.target.closest('[data-pet-character]')
+      !event.target.closest(this.#hidden ? '[data-pet-recall]' : '[data-pet-character]')
     ) return;
     const rootBounds = this.#root.getBoundingClientRect();
     this.#dragPointerId = event.pointerId;
@@ -422,7 +424,7 @@ class CatCompanionController {
     this.#dragThreshold = event.pointerType === 'touch' ? 9 : 6;
     this.#root.dataset.dragState = 'candidate';
     try {
-      this.#stage.setPointerCapture(event.pointerId);
+      (this.#hidden ? this.#recallButton : this.#stage).setPointerCapture(event.pointerId);
     } catch {
       // Window-level pointer listeners keep drag tracking reliable if capture is unavailable.
     }
@@ -458,10 +460,13 @@ class CatCompanionController {
   #finishDrag(persist: boolean): void {
     const pointerId = this.#dragPointerId;
     this.#dragPointerId = null;
-    if (pointerId !== null && this.#stage.hasPointerCapture(pointerId)) {
-      this.#stage.releasePointerCapture(pointerId);
+    if (pointerId !== null) {
+      for (const handle of [this.#stage, this.#recallButton]) {
+        if (handle.hasPointerCapture(pointerId)) handle.releasePointerCapture(pointerId);
+      }
     }
     if (persist) {
+      this.#suppressStageClickUntil = Date.now() + 1_000;
       const bounds = this.#root.getBoundingClientRect();
       writePetPosition({ x: bounds.left, y: bounds.top }, this.#sizeMode);
       this.#scheduleBubblePosition();
@@ -512,7 +517,7 @@ class CatCompanionController {
     this.#root.style.top = `${top}px`;
     this.#root.style.right = 'auto';
     this.#root.style.bottom = 'auto';
-    const character = this.#character.getBoundingClientRect();
+    const character = (this.#hidden ? this.#recallButton : this.#character).getBoundingClientRect();
     const root = this.#root.getBoundingClientRect();
     const viewport = this.#viewportBounds();
     const dx = Math.min(viewport.right - character.right, Math.max(viewport.left - character.left, 0));
@@ -757,7 +762,8 @@ class CatCompanionController {
     if (shouldMoveFocus) this.#recallButton.focus({ preventScroll: true });
   };
 
-  #onRecall = (): void => {
+  #onRecall = (event?: MouseEvent): void => {
+    if (event?.detail && Date.now() < this.#suppressStageClickUntil) return;
     this.#cancelDrag();
     const shouldMoveFocus = document.activeElement === this.#recallButton;
     if (this.#mobileToc?.open && window.matchMedia(ARTICLE_TOC_OVERLAY_QUERY).matches) {
@@ -771,6 +777,8 @@ class CatCompanionController {
     this.#giantButton.disabled = true;
     this.#touchPrimed = true;
     this.#setHidden(false, true);
+    const bounds = this.#root.getBoundingClientRect();
+    this.#setRootPosition(bounds.left, bounds.top, true);
     if (this.#root.dataset.renderer === 'assets') {
       void this.#playArrival();
     } else if (this.#root.dataset.renderer === 'fallback') {

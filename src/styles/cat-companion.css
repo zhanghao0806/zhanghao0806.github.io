@@ -1074,6 +1074,7 @@
 
 [data-cat-companion][data-state="hidden"] :is([data-pet-stage], [data-pet-bubble], [data-pet-toolbar], [data-pet-toy], [data-pet-particles]),
 [data-cat-companion][data-hidden="true"] :is([data-pet-stage], [data-pet-bubble], [data-pet-toolbar], [data-pet-toy], [data-pet-particles]) {
+  display: none;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -1489,7 +1490,7 @@
   color: #563725;
   font-family: "Cat Songti", "Songti SC", "STSong", "SimSun", serif;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.55;
   text-wrap: pretty;
   pointer-events: none;
@@ -1674,4 +1675,14 @@
 @keyframes cat-companion-arrival-fade {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Only the recall button remains interactive while the cat is collapsed. */
+[data-pet-recall] {
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+[data-cat-companion][data-drag-state="dragging"] [data-pet-recall] {
+  cursor: grabbing;
 }

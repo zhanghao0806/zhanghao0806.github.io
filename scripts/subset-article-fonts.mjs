@@ -39,16 +39,16 @@ for (const article of readdirSync(blogDirectory).filter(name => name.endsWith('.
     outputs: Object.fromEntries(Object.entries(files).map(([style, name]) => [style, join(output, name)])) });
 }
 
-// One shared regular font covers every cat line, independently of article text.
+// One shared bold font covers every cat line, independently of article text.
 const dialogue = JSON.parse(readFileSync(join(root, 'src/data/pet-lines.zh-CN.json'), 'utf8'));
 const catText = [...new Set(dialogue.map(line => line.text).join('\n')
   + '…‘’“”–—' + Array.from({length: 95}, (_, i) => String.fromCharCode(32 + i)).join(''))].sort().join('');
 const catFingerprint = hash(sourceHash + catText).slice(0, 20);
-const catFile = `songti-${catFingerprint}-regular.woff2`;
-manifest.__catDialogue = { fingerprint: catFingerprint, regular: `/fonts/${catFile}` };
+const catFile = `songti-${catFingerprint}-bold.woff2`;
+manifest.__catDialogue = { fingerprint: catFingerprint, bold: `/fonts/${catFile}` };
 if (previous.__catDialogue?.fingerprint !== catFingerprint || !existsSync(join(output, catFile))) {
   jobs.push({ article: '猫咪台词', text: catText, fingerprint: catFingerprint, sources,
-    outputs: { Regular: join(output, catFile) } });
+    outputs: { Bold: join(output, catFile) } });
 }
 
 if (jobs.length) {
