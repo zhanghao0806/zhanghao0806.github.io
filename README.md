@@ -477,3 +477,26 @@ git add .
 git commit -m "Update site"
 git push personal-homepage main
 ```
+
+
+## 猫咪按钮与阅读彩蛋
+
+文章页的猫咪右侧有五个小圆按钮，从上到下如下。修改时可以直接用下表的“按钮名称”指示，例如“把呼神护卫按钮的光圈调大”。普通页面只有巨大模式和隐藏猫咪按钮。
+
+| 按钮名称 | 图案 | 作用 | 悬停台词 | 代码标识 |
+| --- | --- | --- | --- | --- |
+| 巨大模式按钮 | 坏笑猫头（邪恶猫猫头像） | 放大猫咪，再点恢复 | 哥斯喵来袭！（仅未放大时触发） | `data-pet-action="giant"` |
+| 量子叠加按钮（喵化按钮） | 重影猫头 | 标题和正文变成“喵”，产生粉蓝重影并轻微漂移；保留标点、空格、目录、公式和代码 | 小心，猫猫大军来袭！ | `data-reading-effect="quantum"` |
+| 重力失效按钮 | 眯眼猫头 | 标题、段落和目录项漂浮，鼠标轻推附近少量元素 | 重力好像失效了？ | `data-reading-effect="gravity"` |
+| 呼神护卫按钮 | 圆框眼镜＋闪电 | 页面变暗，银蓝光源跟随鼠标或触摸位置照亮文字 | Expecto Patronum ! | `data-reading-effect="patronum"` |
+| 隐藏猫咪按钮 | 向下箭头 | 收起猫咪并关闭阅读效果，点击留下的爪印召回 | 欢迎再来找我玩。 | `data-pet-action="hide"` |
+
+三个阅读彩蛋默认关闭，首次点击才加载，彼此互斥。再次点击当前效果按钮或按 Esc 关闭；退出喵化会恢复原文。悬停只显示台词，不开启效果，键盘聚焦按钮也会显示对应台词。
+
+维护位置：
+
+- `src/components/CatCompanion.astro`：按钮顺序、SVG 图标、名称和点击加载入口。
+- `src/styles/cat-companion.css`：按钮大小、颜色和位置；普通模式工具栏位于猫咪右侧偏下，巨大模式位于视口右上方。
+- `src/scripts/cat-companion/controller.ts`：猫咪交互、悬停台词触发和气泡定位。
+- `src/data/pet-lines.zh-CN.json`：五条按钮台词，ID 为 `hover-giant`、`hover-quantum`、`hover-gravity`、`hover-patronum`、`hover-hide`；修改后运行 `npm run font:subset` 更新台词字体。
+- `src/scripts/reading-effects.ts` 和 `src/styles/reading-effects.css`：喵化、漂浮幅度、光圈和效果恢复逻辑。

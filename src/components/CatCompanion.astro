@@ -2,6 +2,7 @@
 import '../styles/cat-companion.css';
 import fonts from '../generated/article-fonts.json';
 
+const { articleEffects = false } = Astro.props;
 const pagePath = Astro.url.pathname;
 const catFontFace = `@font-face {
   font-family: "Cat Songti";
@@ -73,17 +74,7 @@ const catFontFace = `@font-face {
     </div>
   </div>
 
-  <div class="cat-companion__toolbar" data-pet-toolbar role="group" aria-label="猫咪工具">
-    <button
-      class="cat-companion__tool"
-      type="button"
-      data-pet-action="toy"
-      aria-label="开启逗猫棒模式"
-      aria-pressed="false"
-      title="逗猫棒"
-    >
-      <span class="cat-companion__tool-mark" aria-hidden="true">✦</span>
-    </button>
+  <div class="cat-companion__toolbar" data-pet-toolbar role="group" aria-label="猫咪与阅读趣味工具">
     <button
       class="cat-companion__tool"
       type="button"
@@ -92,8 +83,32 @@ const catFontFace = `@font-face {
       aria-pressed="false"
       title="巨大模式"
     >
-      <span class="cat-companion__tool-mark cat-companion__tool-mark--giant" aria-hidden="true">⛶</span>
+      <svg class="cat-companion__effect-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 9 3 2l7 4a12 12 0 0 1 4 0l7-4-2 7c2 2 2 6 0 8-3 4-11 4-14 0-2-2-2-6 0-8Z" />
+        <path d="m7 11 3 1-2 1m9-2-3 1 2 1M8 16q4 5 8-1M10 17v1m4-1v1" />
+      </svg>
     </button>
+    {articleEffects && <>
+      <button class="cat-companion__tool cat-companion__tool--quantum" type="button" data-reading-effect="quantum" aria-label="开启量子叠加" aria-pressed="false" title="量子叠加 · Esc 恢复">
+        <svg class="cat-companion__effect-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path class="cat-companion__quantum-echo" d="M5 9 4 3l6 3a12 12 0 0 1 4 0l6-3-1 6c2 2 2 6 0 8-3 4-11 4-14 0-2-2-2-6 0-8Z" />
+          <path d="M5 9 4 3l6 3a12 12 0 0 1 4 0l6-3-1 6c2 2 2 6 0 8-3 4-11 4-14 0-2-2-2-6 0-8Z" /><path d="M8 12v1m8-1v1m-6 3 2 1 2-1" />
+        </svg>
+      </button>
+      <button class="cat-companion__tool cat-companion__tool--gravity" type="button" data-reading-effect="gravity" aria-label="开启重力失效" aria-pressed="false" title="重力失效 · Esc 恢复">
+        <svg class="cat-companion__effect-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <g transform="translate(0 -1)"><path d="M5 9 4 3l6 3a12 12 0 0 1 4 0l6-3-1 6c2 2 2 6 0 8-3 4-11 4-14 0-2-2-2-6 0-8Z" /><path d="m7.5 12 1.5-1 1.5 1m3 0 1.5-1 1.5 1m-6 3 1.5 1 1.5-1" /></g>
+          <path d="M8 23h8" opacity=".45" />
+        </svg>
+      </button>
+      <button class="cat-companion__tool cat-companion__tool--patronum" type="button" data-reading-effect="patronum" aria-label="开启呼神护卫" aria-pressed="false" title="Expecto Patronum · 呼神护卫 · Esc 恢复">
+        <svg class="cat-companion__effect-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m13 2-3 5h4l-3 5" />
+          <circle cx="6.5" cy="16" r="4" /><circle cx="17.5" cy="16" r="4" />
+          <path d="M10.5 16a2 2 0 0 1 3 0M1 14l1.5 1M21.5 15l1.5-1" />
+        </svg>
+      </button>
+    </>}
     <button
       class="cat-companion__tool"
       type="button"
@@ -103,11 +118,6 @@ const catFontFace = `@font-face {
     >
       <span class="cat-companion__tool-mark cat-companion__tool-mark--hide" aria-hidden="true">⌄</span>
     </button>
-  </div>
-
-  <div class="cat-companion__toy" data-pet-toy aria-hidden="true">
-    <span class="cat-companion__toy-string"></span>
-    <span class="cat-companion__toy-feather"></span>
   </div>
 
   <div class="cat-companion__particles" data-pet-particles aria-hidden="true"></div>
@@ -121,4 +131,31 @@ const catFontFace = `@font-face {
   import { mountCatCompanions } from '../scripts/cat-companion/controller';
 
   mountCatCompanions();
+
+  // Only the small loader runs on arrival; motion code loads on the first click.
+  const effectButtons = document.querySelectorAll<HTMLButtonElement>('[data-reading-effect]');
+  let effectModule: ReturnType<typeof importEffects> | undefined;
+  let request = 0;
+  const importEffects = () => import('../scripts/reading-effects');
+  effectButtons.forEach((button) => button.addEventListener('click', async (event) => {
+    const current = ++request;
+    try {
+      effectModule ??= importEffects();
+      const effects = await effectModule;
+      if (current === request) effects.toggleEffect(button.dataset.readingEffect as 'quantum' | 'gravity' | 'patronum', event.detail ? { x: event.clientX, y: event.clientY } : undefined);
+    } catch (error) {
+      effectModule = undefined;
+      console.error('阅读效果加载失败', error);
+    }
+  }));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      ++request;
+      effectModule?.then((effects) => effects.stopEffect()).catch(() => {});
+    }
+  });
+  document.querySelector('[data-pet-action="hide"]')?.addEventListener('click', () => {
+    ++request;
+    effectModule?.then((effects) => effects.stopEffect()).catch(() => {});
+  });
 </script>

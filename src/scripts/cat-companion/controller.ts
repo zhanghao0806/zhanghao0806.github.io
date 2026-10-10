@@ -18,7 +18,6 @@ import type { PetLine, PetMood, PetState, PetTrigger, SpeechRequest, StateLease 
 
 const RETURN_MIN_AWAY_MS = 8_000;
 const RETURN_COOLDOWN_MS = 60_000;
-const TOY_DURATION_MS = 18_000;
 const RAPID_CLICK_WINDOW_MS = 1_500;
 const RAPID_CLICK_LIMIT = 4;
 const RAPID_CLICK_COOLDOWN_MS = 4_000;
@@ -99,11 +98,9 @@ class CatCompanionController {
   #bubble: HTMLElement;
   #bubbleText: HTMLElement;
   #liveRegion: HTMLElement;
-  #toyButton: HTMLButtonElement;
   #giantButton: HTMLButtonElement;
   #hideButton: HTMLButtonElement;
   #recallButton: HTMLButtonElement;
-  #toy: HTMLElement;
   #particles: HTMLElement;
   #assetRoot: HTMLElement | null;
   #walkRoot: HTMLElement;
@@ -133,8 +130,6 @@ class CatCompanionController {
   #reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   #coarsePointer = window.matchMedia('(pointer: coarse)').matches;
   #hidden = false;
-  #toyActive = false;
-  #toyTimer = 0;
   #idleTimer = 0;
   #blinkTimer = 0;
   #earTimer = 0;
@@ -150,7 +145,6 @@ class CatCompanionController {
   #focusInside = false;
   #scrolling = false;
   #touchPrimed = false;
-  #lastToyPawAt = 0;
   #dragPointerId: number | null = null;
   #dragStartX = 0;
   #dragStartY = 0;
@@ -172,11 +166,9 @@ class CatCompanionController {
     this.#bubbleText = required(root, '[data-pet-bubble-text]');
     this.#liveRegion = required(root, '[data-pet-live]');
     required(root, '[data-pet-toolbar]');
-    this.#toyButton = required(root, '[data-pet-action="toy"]');
     this.#giantButton = required(root, '[data-pet-action="giant"]');
     this.#hideButton = required(root, '[data-pet-action="hide"]');
     this.#recallButton = required(root, '[data-pet-recall]');
-    this.#toy = required(root, '[data-pet-toy]');
     this.#particles = required(root, '[data-pet-particles]');
     this.#assetRoot = root.querySelector('[data-pet-asset-root]');
     this.#walkRoot = required(root, '[data-pet-walk-root]');
@@ -211,7 +203,6 @@ class CatCompanionController {
     this.#abort.abort();
     this.#cancelSpeech();
     this.#gaze.stop();
-    window.clearTimeout(this.#toyTimer);
     window.clearTimeout(this.#idleTimer);
     window.clearTimeout(this.#blinkTimer);
     window.clearTimeout(this.#earTimer);
@@ -247,8 +238,25 @@ class CatCompanionController {
     this.#stage.addEventListener('pointerdown', this.#onDragPointerDown, { signal });
     this.#stage.addEventListener('lostpointercapture', this.#onDragPointerCancel, { signal });
     this.#stage.addEventListener('keydown', this.#onStageKeyDown, { signal });
-    this.#toyButton.addEventListener('click', () => this.#toggleToy(), { signal });
-    this.#toyButton.addEventListener('keydown', this.#onToyButtonKeyDown, { signal });
+    const hoverTriggers: Record<string, PetTrigger> = {
+      giant: 'hover-giant', quantum: 'hover-quantum',
+      gravity: 'hover-gravity', patronum: 'hover-patronum', hide: 'hover-hide',
+    };
+    this.#root.querySelectorAll<HTMLButtonElement>('[data-pet-toolbar] button').forEach((button) => {
+      const trigger = hoverTriggers[button.dataset.readingEffect ?? button.dataset.petAction ?? ''];
+      if (!trigger) return;
+      const speak = () => {
+        if (trigger === 'hover-giant' && this.#sizeMode === 'giant') return;
+        if (this.#hidden || document.hidden || this.#activeLine?.trigger === trigger) return;
+        // Button hints replace the current line immediately, never queue stale hints.
+        this.#cancelSpeech();
+        this.#requestSpeech({ trigger, priority: 100, announce: true });
+      };
+      button.addEventListener('pointerenter', (event) => {
+        if (event.pointerType !== 'touch') speak();
+      }, { signal });
+      button.addEventListener('focus', speak, { signal });
+    });
     this.#giantButton.addEventListener('click', this.#onGiantToggle, { signal });
     this.#giantButton.addEventListener('keydown', this.#onGiantButtonKeyDown, { signal });
     this.#hideButton.addEventListener('click', this.#onHide, { signal });
@@ -291,7 +299,6 @@ class CatCompanionController {
       window.clearTimeout(this.#earTimer);
       delete this.#root.dataset.blinking;
       delete this.#root.dataset.earTwitch;
-      this.#stopToy(false);
       this.#cancelSpeech();
       this.#particles.replaceChildren();
       this.#gaze.stop();
@@ -315,17 +322,13 @@ class CatCompanionController {
     if (this.#hidden || this.#dragPointerId !== null || document.hidden || event.pointerType === 'touch') return;
     this.#gaze.pointTo(event.clientX, event.clientY);
 
-    if (this.#toyActive && !this.#reducedMotionQuery.matches) {
-      this.#toy.style.setProperty('--pet-toy-x', `${event.clientX}px`);
-      this.#toy.style.setProperty('--pet-toy-y', `${event.clientY}px`);
-    }
   };
 
   #onPointerEnter = (): void => {
     if (this.#hidden) return;
     window.clearTimeout(this.#attentionTimer);
     this.#pointerInside = true;
-    if (!this.#toyActive && !this.#speechRunning) this.#machine.acquire('attentive');
+    if (!this.#speechRunning) this.#machine.acquire('attentive');
   };
 
   #onPointerLeave = (): void => {
@@ -335,7 +338,6 @@ class CatCompanionController {
       if (
         !this.#pointerInside &&
         !this.#focusInside &&
-        !this.#toyActive &&
         !this.#speechRunning &&
         this.#machine.state === 'attentive'
       ) {
@@ -348,7 +350,7 @@ class CatCompanionController {
     if (this.#hidden) return;
     window.clearTimeout(this.#attentionTimer);
     this.#focusInside = true;
-    if (!this.#toyActive && !this.#speechRunning) this.#machine.acquire('attentive');
+    if (!this.#speechRunning) this.#machine.acquire('attentive');
   };
 
   #onFocusOut = (event: FocusEvent): void => {
@@ -356,7 +358,6 @@ class CatCompanionController {
     this.#focusInside = false;
     if (
       !this.#pointerInside &&
-      !this.#toyActive &&
       !this.#speechRunning &&
       this.#machine.state === 'attentive'
     ) {
@@ -381,15 +382,6 @@ class CatCompanionController {
       this.#touchPrimed = true;
       this.#openTouchToolbar();
       this.#machine.acquire('attentive');
-      return;
-    }
-
-    if (this.#toyActive) {
-      const now = Date.now();
-      if (now - this.#lastToyPawAt < 700 || Math.random() > 0.72) return;
-      this.#lastToyPawAt = now;
-      this.#react('paw', 'happy');
-      this.#createParticles('spark');
       return;
     }
 
@@ -439,7 +431,6 @@ class CatCompanionController {
       this.#dragging = true;
       this.#suppressStageClickUntil = Date.now() + 1_000;
       this.#root.dataset.dragState = 'dragging';
-      this.#stopToy(false);
       this.#gaze.stop();
     }
     event.preventDefault();
@@ -560,10 +551,6 @@ class CatCompanionController {
     if ((event.key !== 'Enter' && event.key !== ' ') || event.repeat) return;
     event.preventDefault();
     this.#handlePetInteraction('pet-head');
-  };
-
-  #onToyButtonKeyDown = (event: KeyboardEvent): void => {
-    this.#activateButtonFromKeyboard(event, () => this.#toggleToy());
   };
 
   #onGiantButtonKeyDown = (event: KeyboardEvent): void => {
@@ -700,11 +687,11 @@ class CatCompanionController {
 
     const isNose = trigger === 'pet-nose';
     this.#react(isNose ? 'nose' : 'head', isNose ? 'surprised' : 'happy');
-    if (!isNose) this.#createParticles('heart');
+    if (!isNose) this.#createParticles();
     this.#requestSpeech({ trigger: 'pet-head', priority: 80, announce: true });
   }
 
-  #react(kind: 'head' | 'nose' | 'rapid' | 'paw' | 'return', mood: PetMood): void {
+  #react(kind: 'head' | 'nose' | 'rapid' | 'return', mood: PetMood): void {
     const lease = this.#machine.acquire('reacting', 85);
     if (!lease) return;
 
@@ -713,46 +700,9 @@ class CatCompanionController {
     this.#root.dataset.mood = mood;
     this.#reactionTimer = window.setTimeout(() => {
       delete this.#root.dataset.reaction;
-      if (!this.#speechRunning) this.#root.dataset.mood = this.#toyActive ? 'playful' : 'neutral';
-      this.#machine.release(lease, this.#toyActive ? 'playing' : this.#restingState());
+      if (!this.#speechRunning) this.#root.dataset.mood = 'neutral';
+      this.#machine.release(lease, this.#restingState());
     }, kind === 'rapid' ? 1_100 : 760);
-  }
-
-  #toggleToy(): void {
-    if (this.#toyActive) {
-      this.#stopToy(true);
-      return;
-    }
-
-    if (this.#hidden) return;
-    this.#toyActive = true;
-    this.#toyButton.setAttribute('aria-pressed', 'true');
-    this.#toyButton.setAttribute('aria-label', '关闭逗猫棒模式');
-    const stageBounds = this.#stage.getBoundingClientRect();
-    this.#toy.style.setProperty('--pet-toy-x', `${stageBounds.left + stageBounds.width * 0.8}px`);
-    this.#toy.style.setProperty('--pet-toy-y', `${stageBounds.top + stageBounds.height * 0.28}px`);
-    this.#root.dataset.toyActive = 'true';
-    this.#root.dataset.mood = 'playful';
-    this.#machine.force('playing');
-    this.#requestSpeech({ trigger: 'toy-start', priority: 75, announce: true });
-    window.clearTimeout(this.#toyTimer);
-    this.#toyTimer = window.setTimeout(() => this.#stopToy(true), TOY_DURATION_MS);
-  }
-
-  #stopToy(speakAfter: boolean): void {
-    if (!this.#toyActive) return;
-    this.#toyActive = false;
-    window.clearTimeout(this.#toyTimer);
-    this.#toyButton.setAttribute('aria-pressed', 'false');
-    this.#toyButton.setAttribute('aria-label', '开启逗猫棒模式');
-    delete this.#root.dataset.toyActive;
-    this.#toy.style.removeProperty('--pet-toy-x');
-    this.#toy.style.removeProperty('--pet-toy-y');
-    this.#machine.force(this.#restingState());
-    if (!this.#speechRunning) this.#root.dataset.mood = 'neutral';
-    if (speakAfter && !this.#hidden) {
-      this.#requestSpeech({ trigger: 'toy-end', priority: 65, announce: true });
-    }
   }
 
   #onHide = (): void => {
@@ -796,7 +746,6 @@ class CatCompanionController {
       if (
         !this.#pointerInside &&
         !this.#focusInside &&
-        !this.#toyActive &&
         !this.#speechRunning &&
         this.#machine.state === 'attentive'
       ) {
@@ -821,7 +770,6 @@ class CatCompanionController {
       window.clearTimeout(this.#earTimer);
       delete this.#root.dataset.blinking;
       delete this.#root.dataset.earTwitch;
-      this.#stopToy(false);
       this.#cancelSpeech();
       this.#gaze.stop(false);
       return;
@@ -866,7 +814,6 @@ class CatCompanionController {
     window.clearTimeout(this.#idleTimer);
     window.clearTimeout(this.#blinkTimer);
     window.clearTimeout(this.#earTimer);
-    this.#stopToy(false);
     this.#cancelSpeech();
     this.#gaze.stop(false);
   };
@@ -937,8 +884,8 @@ class CatCompanionController {
       this.#root.dataset.speaking = 'false';
       this.#root.dataset.mouth = 'closed';
       if (!this.#hidden) {
-        this.#root.dataset.mood = this.#toyActive ? 'playful' : 'neutral';
-        if (!this.#toyActive) this.#machine.force(this.#restingState());
+        this.#root.dataset.mood = 'neutral';
+        this.#machine.force(this.#restingState());
       }
     }
   }
@@ -946,7 +893,7 @@ class CatCompanionController {
   async #playLine(line: PetLine, request: SpeechRequest, runVersion: number): Promise<void> {
     this.#speechAbort = new AbortController();
     const signal = this.#speechAbort.signal;
-    const stateLease = this.#toyActive ? null : this.#machine.acquire('speaking', request.priority);
+    const stateLease = this.#machine.acquire('speaking', request.priority);
     this.#activeLine = line;
 
     this.#root.dataset.speaking = 'true';
@@ -972,7 +919,7 @@ class CatCompanionController {
         this.#speechAbort = null;
         this.#activeLine = null;
       }
-      this.#machine.release(stateLease, this.#toyActive ? 'playing' : this.#restingState());
+      this.#machine.release(stateLease, this.#restingState());
     }
   }
 
@@ -1028,8 +975,8 @@ class CatCompanionController {
     delete this.#root.dataset.bubbleVisible;
     this.#root.dataset.speaking = 'false';
     this.#root.dataset.mouth = 'closed';
-    this.#root.dataset.mood = this.#toyActive ? 'playful' : 'neutral';
-    if (!this.#hidden && !this.#toyActive) this.#machine.force(this.#restingState());
+    this.#root.dataset.mood = 'neutral';
+    if (!this.#hidden) this.#machine.force(this.#restingState());
   }
 
   #scheduleIdleLine(): void {
@@ -1098,7 +1045,6 @@ class CatCompanionController {
       this.#hidden ||
       document.hidden ||
       this.#scrolling ||
-      this.#toyActive ||
       this.#speechRunning ||
       editing ||
       selecting
@@ -1113,13 +1059,13 @@ class CatCompanionController {
     return this.#pointerInside || this.#focusInside ? 'attentive' : 'idle';
   }
 
-  #createParticles(kind: 'heart' | 'spark'): void {
+  #createParticles(): void {
     if (this.#reducedMotionQuery.matches) return;
-    const count = kind === 'heart' ? 2 : 5;
+    const count = 2;
     for (let index = 0; index < count; index += 1) {
       const particle = document.createElement('span');
-      particle.className = `cat-companion__particle cat-companion__particle--${kind}`;
-      particle.textContent = kind === 'heart' ? '♥' : '✦';
+      particle.className = 'cat-companion__particle cat-companion__particle--heart';
+      particle.textContent = '♥';
       particle.style.setProperty('--particle-index', String(index));
       particle.style.left = `${76 + index * 13 + Math.random() * 10}px`;
       particle.style.top = `${34 + Math.random() * 26}px`;

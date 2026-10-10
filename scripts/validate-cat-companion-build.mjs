@@ -85,13 +85,17 @@ const petStorage = await readFile(petStoragePath, 'utf8');
 const petManifestPath = path.join(projectRoot, 'public', 'pet', 'cat-v1', 'manifest.json');
 const petManifest = JSON.parse(await readFile(petManifestPath, 'utf8'));
 const expectedTriggers = [
+  'hover-hide',
+  'hover-giant',
+  'hover-quantum',
+  'hover-gravity',
+  'hover-patronum',
+
   'first-visit',
   'tab-return',
   'pet-head',
   'pet-nose',
   'rapid-click',
-  'toy-start',
-  'toy-end',
   'recall',
   'idle',
   'page-blog',
@@ -152,8 +156,6 @@ if (!Array.isArray(lines)) {
     'pet-head',
     'pet-nose',
     'rapid-click',
-    'toy-start',
-    'toy-end',
     'recall',
   ]);
   const interactiveCount = lines.filter((line) => interactiveTriggers.has(line?.trigger)).length;

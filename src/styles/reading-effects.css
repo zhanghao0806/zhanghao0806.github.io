@@ -1,0 +1,32 @@
+/* Loaded with the effect module after the first deliberate click. */
+.reading-particle {
+  translate: var(--reading-x, 0px) var(--reading-y, 0px);
+}
+.reading-particle.reading-particle--return { transition: translate 420ms cubic-bezier(.2,.7,.2,1); }
+[data-reading-mode="quantum"] .article-page,
+[data-reading-mode="quantum"] .article-page * {
+  text-shadow: -1.8px -0.5px 0 rgb(231 92 162 / 52%), 1.8px 0.5px 0 rgb(68 156 224 / 52%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-particle.reading-particle--return { transition: none; }
+}
+
+.reading-patronum {
+  position: fixed;
+  inset: 0;
+  z-index: 29;
+  pointer-events: none;
+  --light-radius: clamp(170px, 24vw, 300px);
+  background: radial-gradient(circle var(--light-radius) at var(--light-x) var(--light-y),
+    transparent 0%, rgb(9 19 32 / 4%) 28%, rgb(7 16 29 / 26%) 48%,
+    rgb(4 9 19 / 78%) 72%, rgb(2 5 12 / 98%) 100%);
+}
+.reading-patronum::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle 12px at var(--light-x) var(--light-y), rgb(236 251 255 / 85%), rgb(156 220 255 / 30%) 35%, transparent 100%),
+    radial-gradient(circle var(--light-radius) at var(--light-x) var(--light-y), transparent 36%, rgb(138 213 255 / 12%) 55%, transparent 78%);
+}
+@media print { .reading-patronum { display: none; } }

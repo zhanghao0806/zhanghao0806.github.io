@@ -5,7 +5,6 @@ const STATE_PRIORITY: Record<PetState, number> = {
   attentive: 10,
   speaking: 40,
   reacting: 60,
-  playing: 70,
   sleepy: 20,
   hidden: 100,
 };

@@ -27,24 +27,6 @@
     "paths": ["*"]
   },
   {
-    "id": "toy-start-01",
-    "trigger": "toy-start",
-    "text": "这次一定抓得到。",
-    "mood": "playful",
-    "weight": 1,
-    "minIntervalMs": 15000,
-    "paths": ["*"]
-  },
-  {
-    "id": "toy-end-01",
-    "trigger": "toy-end",
-    "text": "差一点就抓到了。",
-    "mood": "happy",
-    "weight": 1,
-    "minIntervalMs": 15000,
-    "paths": ["*"]
-  },
-  {
     "id": "pet-head-01",
     "trigger": "pet-head",
     "text": "这里可以再摸一下。",
@@ -357,6 +339,59 @@
     "mood": "neutral",
     "weight": 1,
     "minIntervalMs": 60000,
+    "paths": ["*"]
+  },
+  {
+    "id": "hover-giant",
+    "trigger": "hover-giant",
+    "text": "哥斯喵来袭！",
+    "mood": "curious",
+    "weight": 1,
+    "minIntervalMs": 0,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "hover-quantum",
+    "trigger": "hover-quantum",
+    "text": "小心，猫猫大军来袭！",
+    "mood": "curious",
+    "weight": 1,
+    "minIntervalMs": 0,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "hover-gravity",
+    "trigger": "hover-gravity",
+    "text": "重力好像失效了？",
+    "mood": "curious",
+    "weight": 1,
+    "minIntervalMs": 0,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "hover-patronum",
+    "trigger": "hover-patronum",
+    "text": "Expecto Patronum !",
+    "mood": "curious",
+    "weight": 1,
+    "minIntervalMs": 0,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "hover-hide",
+    "trigger": "hover-hide",
+    "text": "欢迎再来找我玩。",
+    "mood": "happy",
+    "weight": 1,
+    "minIntervalMs": 0,
     "paths": ["*"]
   }
 ]
