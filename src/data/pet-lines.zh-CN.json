@@ -155,7 +155,7 @@
   {
     "id": "idle-11",
     "trigger": "idle",
-    "text": "要为自己创造一个快乐的生命其实很简单，你只需要两种材料：一个简单的生活方式和一颗满足感恩的心。过一种简简单单的生活，做一个实实在在的人；快乐的秘密不过如此而已。与其对不能得到的欲求耿耿于怀，倒不如对你已经拥有的满足感恩。",
+    "text": "要为自己创造一个快乐的生命其实很简单，你只需要两种材料：一个简单的生活方式和一颗满足感恩的心。快乐的秘密不过如此而已。与其对不能得到的欲求耿耿于怀，倒不如对你已经拥有的满足感恩。",
     "mood": "relaxed",
     "weight": 1,
     "minIntervalMs": 60000,
@@ -340,6 +340,160 @@
     "weight": 1,
     "minIntervalMs": 60000,
     "paths": ["*"]
+  },
+  {
+    "id": "idle-32",
+    "trigger": "idle",
+    "text": "缘分只负责让我们遇见，剩下的每一步都是我们自己走的，结局并不注定，把握在我们手中。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-33",
+    "trigger": "idle",
+    "text": "万物都在轮回中新生，花谢会再开，河流终将奔涌入海，所有失去，都是另一种重逢。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-34",
+    "trigger": "idle",
+    "text": "我与其说你没好，不如说你不可重复。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-35",
+    "trigger": "idle",
+    "text": "人没有两颗心脏，所以爱恨同源，悲欢共振。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-36",
+    "trigger": "idle",
+    "text": "我要变成一枚印错的字，降落在一首完美的情诗里，让你认真思考，我存在的意义。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-37",
+    "trigger": "idle",
+    "text": "这个牛顿苹果砸向我的时代，我伸手接住的是崇祯五年的雪。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-38",
+    "trigger": "idle",
+    "text": "抬头，未来就在远方。低头，世界就在脚下。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-39",
+    "trigger": "idle",
+    "text": "我的眼泪也会凝聚、汹涌、流动，那我也是湖吗？我的头发也会生长、泛黄、掉落，那我也是树吗？",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-40",
+    "trigger": "idle",
+    "text": "我们终将变成我们所追寻的东西——或者说，无论我们在寻找什么，实际上我们都是在寻找自己。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-41",
+    "trigger": "idle",
+    "text": "下雨的日子淋一段路，有时希望遇见一把伞，有时只是继续淋下去。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-42",
+    "trigger": "idle",
+    "text": "那些总是努力让别人感到愉悦的人，不会说出自己的真实想法或感受，这个人也许非常友善、情绪稳定、亲切热情，但是他是在压抑自己真正的感觉——到头来他就是在背叛自己。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-43",
+    "trigger": "idle",
+    "text": "按照自己认为正确的方式生活，并不是自私。按照自己认为正确的方式要求别人，才是自私。自私是要求他人配合我的取向、自尊、利益、喜悦。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-44",
+    "trigger": "idle",
+    "text": "星星越来越多，有自由、有书、有花、有月亮。有人会因为这些的存在而感到幸福吗？",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
+  },
+  {
+    "id": "idle-45",
+    "trigger": "idle",
+    "text": "萍水相逢是命运的伏笔，一刀两断是人生果敢的落笔。",
+    "mood": "neutral",
+    "weight": 1,
+    "minIntervalMs": 60000,
+    "paths": [
+      "*"
+    ]
   },
   {
     "id": "hover-giant",
