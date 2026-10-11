@@ -1,6 +1,7 @@
 // Preserve explicit paragraph indents as layout, rather than collapsible HTML whitespace.
 export default function remarkParagraphIndent() {
   return (tree, file) => {
+    if (file.data.astro?.frontmatter?.preserveWhitespace === true) return;
     const source = String(file.value);
 
     // Only top-level prose paragraphs: list nesting and code indentation are Markdown syntax.

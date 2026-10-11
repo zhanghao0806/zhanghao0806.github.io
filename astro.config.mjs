@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import remarkParagraphIndent from './src/lib/remark-paragraph-indent.mjs';
+import remarkProseWhitespace from './src/lib/remark-prose-whitespace.mjs';
 
 function remarkArticleImagePerformance() {
   return (tree) => {
@@ -31,7 +32,7 @@ export default defineConfig({
       theme: 'github-light',
     },
     processor: unified({
-      remarkPlugins: [remarkMath, remarkParagraphIndent, remarkArticleImagePerformance],
+      remarkPlugins: [remarkMath, remarkProseWhitespace, remarkParagraphIndent, remarkArticleImagePerformance],
       rehypePlugins: [rehypeKatex],
     }),
   },

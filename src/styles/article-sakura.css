@@ -282,6 +282,15 @@ html {
   text-indent: 2em;
 }
 
+/* Each source blank line occupies one text line; single newlines and spaces
+   remain visible without adding the normal fixed paragraph margins. */
+.article-prose > p[data-source-whitespace="true"] {
+  white-space: break-spaces;
+  tab-size: 4;
+  text-indent: 0;
+  margin-block: calc(var(--source-empty-lines, 0) * 1lh) 0;
+}
+
 .article-prose :is(ul, ol) {
   padding-left: 1.55em;
   margin: 0.25em 0 0.9em;
