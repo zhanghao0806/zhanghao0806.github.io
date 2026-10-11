@@ -688,7 +688,7 @@ html {
 .article-toc__nav {
   display: block;
   max-height: calc(100vh - 184px);
-  padding: 0 8px 13px;
+  padding: 10px 10px 15px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-color: var(--sakura-light) transparent;
@@ -764,9 +764,8 @@ html {
 
 .article-toc__text {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .article-toc__active-mark {

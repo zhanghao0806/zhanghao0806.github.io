@@ -148,20 +148,20 @@ function tick(now: number) {
       const dx = pointer.x - Math.max(left, Math.min(pointer.x, left + rect.width));
       const dy = pointer.y - Math.max(top, Math.min(pointer.y, top + rect.height));
       return { particle, distance: Math.hypot(dx, dy), cx: left + rect.width / 2, cy: top + rect.height / 2 };
-    }).filter(({ distance }) => distance < 140).sort((a, b) => a.distance - b.distance).slice(0, 3)
+    }).filter(({ distance }) => distance < 100).sort((a, b) => a.distance - b.distance).slice(0, 3)
     : [];
   const time = now / 1000;
   active.forEach((particle) => {
     const { element, phase, toc } = particle;
     const quantum = mode === 'quantum';
-    const amplitude = quantum ? 3 : toc ? 3 : 24;
+    const amplitude = quantum ? 3 : toc ? 2.5 : 12;
     let x = Math.sin(time * 0.72 + phase) * amplitude;
     let y = quantum ? Math.cos(time * 0.9 + phase) * 2.2 : -amplitude + Math.cos(time * 0.85 + phase) * amplitude;
     const hit = nearby.find(({ particle: candidate }) => candidate === particle);
     if (hit) {
       const dx = hit.cx - pointer.x, dy = hit.cy - pointer.y;
       const length = Math.hypot(dx, dy) || 1;
-      const force = (1 - hit.distance / 140) * (toc ? 2 : 26);
+      const force = (1 - hit.distance / 100) * (toc ? 1.5 : 12);
       x += dx / length * force;
       y += (dy || -1) / length * force;
     }
