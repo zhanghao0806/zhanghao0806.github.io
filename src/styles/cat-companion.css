@@ -144,10 +144,9 @@
   pointer-events: none;
 }
 
-[data-cat-companion]:hover [data-pet-toolbar],
-[data-cat-companion]:focus-within [data-pet-toolbar],
-[data-cat-companion][data-touch-toolbar="true"] [data-pet-toolbar],
-[data-cat-companion][data-state="attentive"] [data-pet-toolbar] {
+[data-cat-companion][data-toolbar-near="true"] [data-pet-toolbar],
+[data-cat-companion]:has([data-pet-toolbar] button:focus-visible, [data-pet-stage]:focus-visible) [data-pet-toolbar],
+[data-cat-companion][data-touch-toolbar="true"] [data-pet-toolbar] {
   opacity: 1;
   visibility: visible;
   transform: translateX(0);
@@ -1435,10 +1434,6 @@
   right: var(--pet-toolbar-right, max(10px, env(safe-area-inset-right)));
   bottom: auto;
   display: flex;
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  pointer-events: auto;
 }
 
 [data-cat-companion][data-size-mode="giant"] [data-pet-action="giant"] {
@@ -1597,9 +1592,6 @@
 .cat-companion__tool[aria-pressed="true"] .cat-companion__quantum-echo { stroke: currentColor; }
 .cat-companion__tool--quantum { --pet-accent: #b367ad; --pet-accent-strong: #985590; }
 .cat-companion__tool--gravity { --pet-accent: #588aab; --pet-accent-strong: #467590; }
-[data-cat-companion][data-reading-active] [data-pet-toolbar] {
-  opacity: 1; visibility: visible; transform: none; pointer-events: auto;
-}
 
 .cat-companion__tool--patronum { --pet-accent: #658fa8; --pet-accent-strong: #426d89; }
 [data-cat-companion][data-reading-active="patronum"] [data-pet-toolbar] {

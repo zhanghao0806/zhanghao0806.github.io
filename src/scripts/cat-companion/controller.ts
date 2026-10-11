@@ -218,6 +218,9 @@ class CatCompanionController {
     const signal = this.#abort.signal;
 
     window.addEventListener('pointermove', this.#onPointerMove, { passive: true, signal });
+    const clearToolbarRegion = () => { delete this.#root.dataset.toolbarNear; };
+    document.addEventListener('pointerleave', clearToolbarRegion, { signal });
+    window.addEventListener('blur', clearToolbarRegion, { signal });
     window.addEventListener('pointermove', this.#onDragPointerMove, { signal });
     window.addEventListener('pointerup', this.#onDragPointerUp, { signal });
     window.addEventListener('pointercancel', this.#onDragPointerCancel, { signal });
@@ -321,7 +324,18 @@ class CatCompanionController {
   #onPointerMove = (event: PointerEvent): void => {
     if (this.#hidden || this.#dragPointerId !== null || document.hidden || event.pointerType === 'touch') return;
     this.#gaze.pointTo(event.clientX, event.clientY);
-
+    const cat = this.#character.getBoundingClientRect();
+    const toolbar = required<HTMLElement>(this.#root, '[data-pet-toolbar]').getBoundingClientRect();
+    const inRect = (rect: DOMRect, padding: number) =>
+      event.clientX >= rect.left - padding && event.clientX <= rect.right + padding &&
+      event.clientY >= rect.top - padding && event.clientY <= rect.bottom + padding;
+    // Include the gap to the buttons without placing an invisible hitbox over links.
+    const region = this.#sizeMode === 'normal'
+      ? new DOMRect(Math.min(cat.left, toolbar.left), Math.min(cat.top, toolbar.top),
+          Math.max(cat.right, toolbar.right) - Math.min(cat.left, toolbar.left),
+          Math.max(cat.bottom, toolbar.bottom) - Math.min(cat.top, toolbar.top))
+      : cat;
+    this.#root.dataset.toolbarNear = String(inRect(region, 32) || inRect(toolbar, 16));
   };
 
   #onPointerEnter = (): void => {
