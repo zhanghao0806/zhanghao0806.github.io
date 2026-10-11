@@ -94,14 +94,16 @@ html {
 }
 
 .article-prose {
+  --source-font-size: 18px;
+  --source-leading: 2.15;
   counter-reset: article-h1;
   padding: 30px clamp(24px, 6vw, 68px) clamp(48px, 7vw, 78px);
   color: var(--article-ink);
   font-family: var(--article-font);
-  font-size: 18px;
+  font-size: var(--source-font-size);
   font-weight: 400;
   letter-spacing: 0.055em;
-  line-height: 2.15;
+  line-height: var(--source-leading);
   overflow-wrap: anywhere;
 }
 
@@ -278,17 +280,15 @@ html {
   color: var(--article-ink);
 }
 
-.article-prose > p[data-paragraph-indent="true"] {
-  text-indent: 2em;
-}
-
-/* Each source blank line occupies one text line; single newlines and spaces
-   remain visible without adding the normal fixed paragraph margins. */
-.article-prose > p[data-source-whitespace="true"] {
+/* Every article retains authored prose spaces and manual newlines. */
+.article-prose [data-source-whitespace="true"] {
   white-space: break-spaces;
   tab-size: 4;
   text-indent: 0;
-  margin-block: calc(var(--source-empty-lines, 0) * 1lh) 0;
+}
+
+.article-page .article-prose > [data-source-spacing="true"] {
+  margin-block: calc(var(--source-empty-lines, 0) * var(--source-font-size) * var(--source-leading)) 0;
 }
 
 .article-prose :is(ul, ol) {
@@ -876,10 +876,12 @@ html {
   }
 
   .article-prose {
+    --source-font-size: 16.5px;
+    --source-leading: 2;
     padding: 24px 20px 48px;
-    font-size: 16.5px;
+    font-size: var(--source-font-size);
     letter-spacing: 0.035em;
-    line-height: 2;
+    line-height: var(--source-leading);
   }
 
   .article-prose :is(h1, h2, h3, h4, h5, h6)[id] {

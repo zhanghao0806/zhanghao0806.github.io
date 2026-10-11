@@ -1,8 +1,12 @@
-// Opt-in prose layout: keep authored whitespace while retaining Markdown markup.
+// Preserve authored prose whitespace for every article, including future posts.
 export default function remarkProseWhitespace() {
   return (tree, file) => {
-    if (file.data.astro?.frontmatter?.preserveWhitespace !== true) return;
     const source = String(file.value);
+    // Syntax highlighters and formula renderers can replace HTML nodes and
+    // discard their positions. Retain the original block order separately.
+    file.data.proseBlockPositions = tree.children
+      .filter((node) => !['definition', 'footnoteDefinition', 'html'].includes(node.type))
+      .map((node) => node.position);
 
     const restoreInline = (node) => {
       if (node.type === 'break' && node.position) {
@@ -29,9 +33,24 @@ export default function remarkProseWhitespace() {
       node.children?.forEach(restoreInline);
     };
 
-    let previous;
-    for (const node of tree.children) {
-      if (node.type === 'paragraph' && node.position) {
+    const preserveText = (child) => {
+      if (child.type === 'break') restoreInline(child);
+      if (child.type === 'text') child.type = 'sourceWhitespaceText';
+      child.children?.forEach(preserveText);
+    };
+    const visit = (node, topLevel = false) => {
+      if ((node.type === 'paragraph' || node.type === 'heading') && node.position) {
+        // Nested lists and quotes use indentation as Markdown structure. Keep
+        // their parsed prose spacing rather than copying list/quote markers.
+        if (!topLevel || node.type === 'heading') {
+          node.children.forEach(preserveText);
+          node.data ??= {};
+          node.data.hProperties = {
+            ...node.data.hProperties,
+            'data-source-whitespace': 'true',
+          };
+          return;
+        }
         node.children.forEach(restoreInline);
         const children = [];
         let cursor = node.position.start.offset - node.position.start.column + 1;
@@ -51,24 +70,16 @@ export default function remarkProseWhitespace() {
         node.children = children;
         // The standard text-to-HTML handler trims every line again. A custom
         // literal text node uses its value unchanged through the default handler.
-        const preserveText = (child) => {
-          if (child.type === 'text') child.type = 'sourceWhitespaceText';
-          child.children?.forEach(preserveText);
-        };
         node.children.forEach(preserveText);
-        const blankLines = previous?.position
-          ? Math.max(0, node.position.start.line - previous.position.end.line - 1)
-          // Astro masks frontmatter with whitespace to retain source positions.
-          // Those metadata lines must not become empty lines above the article.
-          : 0;
         node.data ??= {};
         node.data.hProperties = {
           ...node.data.hProperties,
           'data-source-whitespace': 'true',
-          style: `--source-empty-lines: ${blankLines}`,
         };
+        return;
       }
-      previous = node;
-    }
+      node.children?.forEach((child) => visit(child));
+    };
+    tree.children.forEach((node) => visit(node, true));
   };
 }

@@ -3,8 +3,8 @@ import { unified } from '@astrojs/markdown-remark';
 import { defineConfig } from 'astro/config';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
-import remarkParagraphIndent from './src/lib/remark-paragraph-indent.mjs';
 import remarkProseWhitespace from './src/lib/remark-prose-whitespace.mjs';
+import rehypeSourceSpacing from './src/lib/rehype-source-spacing.mjs';
 
 function remarkArticleImagePerformance() {
   return (tree) => {
@@ -32,8 +32,8 @@ export default defineConfig({
       theme: 'github-light',
     },
     processor: unified({
-      remarkPlugins: [remarkMath, remarkProseWhitespace, remarkParagraphIndent, remarkArticleImagePerformance],
-      rehypePlugins: [rehypeKatex],
+      remarkPlugins: [remarkMath, remarkProseWhitespace, remarkArticleImagePerformance],
+      rehypePlugins: [rehypeKatex, rehypeSourceSpacing],
     }),
   },
 });
