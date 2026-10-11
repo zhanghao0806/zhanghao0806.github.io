@@ -38,7 +38,7 @@ export default function remarkProseWhitespace() {
       if (child.type === 'text') child.type = 'sourceWhitespaceText';
       child.children?.forEach(preserveText);
     };
-    const visit = (node, topLevel = false) => {
+    const visit = (node, topLevel = false, tightList = false, parentType) => {
       if ((node.type === 'paragraph' || node.type === 'heading') && node.position) {
         // Nested lists and quotes use indentation as Markdown structure. Keep
         // their parsed prose spacing rather than copying list/quote markers.
@@ -49,6 +49,11 @@ export default function remarkProseWhitespace() {
             ...node.data.hProperties,
             'data-source-whitespace': 'true',
           };
+          // Tight lists unwrap <p> elements, which would discard the whitespace
+          // marker. Keep an inline wrapper for their authored prose instead.
+          if (node.type === 'paragraph' && parentType === 'listItem' && tightList) {
+            node.data.hName = 'span';
+          }
           return;
         }
         node.children.forEach(restoreInline);
@@ -78,7 +83,10 @@ export default function remarkProseWhitespace() {
         };
         return;
       }
-      node.children?.forEach((child) => visit(child));
+      const childrenAreTight = node.type === 'list'
+        ? !node.spread && node.children.every((item) => !item.spread)
+        : tightList;
+      node.children?.forEach((child) => visit(child, false, childrenAreTight, node.type));
     };
     tree.children.forEach((node) => visit(node, true));
   };

@@ -39,6 +39,11 @@ for (const node of structural.childNodes.filter((node) => node.tagName)) {
 }
 assert.match(attribute((await render('# 标题\n\n\n\n正文')).childNodes.find((node) => node.tagName === 'p'), 'style'), /--source-empty-lines: 3/);
 assert.equal(text((await render('- 列表  空格\n  下一行')).childNodes.find((node) => node.tagName === 'ul')).trim(), '列表  空格\n下一行');
+const tightList = (await render('- 列表  空格\n  下一行')).childNodes.find((node) => node.tagName === 'ul');
+const tightItem = tightList.childNodes.find((node) => node.tagName === 'li');
+const tightProse = tightItem.childNodes.find((node) => node.tagName === 'span');
+assert.equal(attribute(tightProse, 'data-source-whitespace'), 'true');
+assert.equal(text(tightProse), '列表  空格\n下一行');
 assert.equal(text((await render('> 引用  空格  \n> 下一行')).childNodes.find((node) => node.tagName === 'blockquote')).trim(), '引用  空格  \n下一行');
 const escaped = paragraphs(await render('文本 &amp; \\*星号\\*  空格'))[0];
 assert.equal(text(escaped), '文本 & *星号*  空格');
