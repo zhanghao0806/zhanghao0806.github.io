@@ -27,6 +27,9 @@ assert.match(attribute(result[1], 'style'), /--source-empty-lines: 2/);
 assert.ok(result[0].childNodes.some((node) => node.tagName === 'strong'));
 assert.ok(result[0].childNodes.some((node) => node.tagName === 'a'));
 assert.equal(text(paragraphs(await render('第一行\\\n第二行'))[0]), '第一行\n第二行');
+const oneSeparator = paragraphs(await render('第一段\n\n第二段'));
+assert.equal(oneSeparator.length, 2);
+assert.match(attribute(oneSeparator[1], 'style'), /--source-empty-lines: 1/);
 assert.equal(text(paragraphs(await render('第一行\r\n第二行\r\n\r\n第三行'))[0]), '第一行\n第二行');
 // No frontmatter opt-in, and stale article metadata cannot disable the rule.
 assert.equal(attribute(paragraphs(await render(source))[0], 'data-source-whitespace'), 'true');
@@ -82,5 +85,7 @@ for (const name of files) {
 }
 const css = await readFile(new URL('../src/styles/article-sakura.css', import.meta.url), 'utf8');
 assert.match(css, /\[data-source-whitespace="true"\]\s*\{[^}]*white-space:\s*break-spaces/);
-assert.match(css, /\[data-source-spacing="true"\]\s*\{[^}]*margin-block:\s*calc\(var\(--source-empty-lines/);
+assert.match(css, /\[data-source-spacing="true"\]\s*\{[^}]*margin-block:\s*calc\(/);
+assert.match(css, /min\(var\(--source-empty-lines, 0\), 1\) \* 0\.65em/);
+assert.match(css, /max\(0, var\(--source-empty-lines, 0\) - 1\)/);
 console.log(`Whitespace preservation is enabled for all ${files.length} articles${process.argv.includes('--built') ? ' and their built pages' : ''}.`);

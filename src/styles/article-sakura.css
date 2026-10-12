@@ -288,7 +288,12 @@ html {
 }
 
 .article-page .article-prose > [data-source-spacing="true"] {
-  margin-block: calc(var(--source-empty-lines, 0) * var(--source-font-size) * var(--source-leading)) 0;
+  /* One Markdown separator is a compact paragraph gap; extra authored blank
+     lines still add full lines of space. Manual newlines have no block margin. */
+  margin-block: calc(
+    min(var(--source-empty-lines, 0), 1) * 0.65em
+    + max(0, var(--source-empty-lines, 0) - 1) * var(--source-font-size) * var(--source-leading)
+  ) 0;
 }
 
 .article-prose :is(ul, ol) {
