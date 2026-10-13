@@ -1431,9 +1431,10 @@
   [data-pet-toolbar] {
   position: fixed;
   top: var(--pet-toolbar-top, max(10px, env(safe-area-inset-top)));
-  right: var(--pet-toolbar-right, max(10px, env(safe-area-inset-right)));
+  left: var(--pet-toolbar-left, 0px);
+  right: auto;
   bottom: auto;
-  display: flex;
+  display: grid;
 }
 
 [data-cat-companion][data-size-mode="giant"] [data-pet-action="giant"] {

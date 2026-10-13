@@ -493,14 +493,14 @@ git push personal-homepage main
 | 呼神护卫按钮 | 圆框眼镜＋闪电 | 页面变暗，银蓝光源跟随鼠标或触摸位置照亮文字 | Expecto Patronum ! | `data-reading-effect="patronum"` |
 | 隐藏猫咪按钮 | 向下箭头 | 收起猫咪并关闭阅读效果，点击留下的爪印召回 | 欢迎再来找我玩。 | `data-pet-action="hide"` |
 
-鼠标进入猫咪四周约 32px 的感应区域时显示按钮，离开时隐藏；普通模式感应区域包含猫咪到按钮之间的空隙。巨大模式下，猫咪周围和右上按钮组附近都能显示按钮。感应区域不拦截正文点击。键盘聚焦和手机点击猫咪也可显示按钮。
+鼠标进入猫咪四周约 32px 的感应区域时显示按钮，离开时隐藏；普通模式感应区域包含猫咪到按钮之间的空隙。巨大模式下，感应区域同样包含猫咪与旁边的按钮组。感应区域不拦截正文点击。键盘聚焦和手机点击猫咪也可显示按钮。
 
 三个阅读彩蛋默认关闭，首次点击才加载，彼此互斥。再次点击当前效果按钮或按 Esc 关闭；退出喵化会恢复原文。悬停只显示台词，不开启效果，键盘聚焦按钮也会显示对应台词。
 
 维护位置：
 
 - `src/components/CatCompanion.astro`：按钮顺序、SVG 图标、名称和点击加载入口。
-- `src/styles/cat-companion.css`：按钮大小、颜色和位置；普通模式工具栏位于猫咪右侧偏下，巨大模式位于视口右上方。
+- `src/styles/cat-companion.css`：按钮大小、颜色和位置；普通模式工具栏位于猫咪右侧偏下，巨大模式跟随猫咪，优先放在右侧，靠近屏幕边缘时切换到左侧或向内收。
 - `src/scripts/cat-companion/controller.ts`：猫咪交互、悬停台词触发和气泡定位。
 - `src/data/pet-lines.zh-CN.json`：五条按钮台词，ID 为 `hover-giant`、`hover-quantum`、`hover-gravity`、`hover-patronum`、`hover-hide`；修改后运行 `npm run font:subset` 更新台词字体。
 - `src/scripts/reading-effects.ts` 和 `src/styles/reading-effects.css`：喵化、漂浮幅度、光圈和效果恢复逻辑。

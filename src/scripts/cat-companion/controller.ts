@@ -330,11 +330,9 @@ class CatCompanionController {
       event.clientX >= rect.left - padding && event.clientX <= rect.right + padding &&
       event.clientY >= rect.top - padding && event.clientY <= rect.bottom + padding;
     // Include the gap to the buttons without placing an invisible hitbox over links.
-    const region = this.#sizeMode === 'normal'
-      ? new DOMRect(Math.min(cat.left, toolbar.left), Math.min(cat.top, toolbar.top),
+    const region = new DOMRect(Math.min(cat.left, toolbar.left), Math.min(cat.top, toolbar.top),
           Math.max(cat.right, toolbar.right) - Math.min(cat.left, toolbar.left),
-          Math.max(cat.bottom, toolbar.bottom) - Math.min(cat.top, toolbar.top))
-      : cat;
+          Math.max(cat.bottom, toolbar.bottom) - Math.min(cat.top, toolbar.top));
     this.#root.dataset.toolbarNear = String(inRect(region, 32) || inRect(toolbar, 16));
   };
 
@@ -536,6 +534,7 @@ class CatCompanionController {
     this.#root.dataset.positionSource = 'user';
     if (persist) writePetPosition({ x: nextLeft, y: nextTop }, this.#sizeMode);
     this.#gaze.updateBounds();
+    this.#positionToolbar();
   }
 
   #restorePosition(): void {
@@ -621,11 +620,25 @@ class CatCompanionController {
       : 1;
     this.#root.style.setProperty('--pet-scale', String(scale));
     this.#root.style.setProperty('--pet-giant-scale', String(scale));
-    this.#root.style.setProperty('--pet-toolbar-top', `${viewport.top}px`);
-    this.#root.style.setProperty(
-      '--pet-toolbar-right',
-      `${Math.max(0, window.innerWidth - viewport.right)}px`,
-    );
+    this.#scheduleBubblePosition();
+  }
+
+  #positionToolbar(): void {
+    if (this.#sizeMode !== 'giant' || this.#hidden) return;
+    const cat = this.#character.getBoundingClientRect();
+    const toolbar = required<HTMLElement>(this.#root, '[data-pet-toolbar]');
+    const { width, height } = toolbar.getBoundingClientRect();
+    const viewport = this.#viewportBounds();
+    const gap = 14;
+    // Prefer the cat's right side, flip to the left near the viewport edge.
+    const desiredLeft = cat.right + gap + width <= viewport.right
+      ? cat.right + gap
+      : cat.left - gap - width >= viewport.left
+        ? cat.left - gap - width : cat.right - width - gap;
+    const left = Math.max(viewport.left, Math.min(viewport.right - width, desiredLeft));
+    const top = Math.max(viewport.top, Math.min(viewport.bottom - height, cat.bottom - height - 24));
+    this.#root.style.setProperty('--pet-toolbar-left', `${left}px`);
+    this.#root.style.setProperty('--pet-toolbar-top', `${top}px`);
   }
 
   #centerGiantMode(): void {
@@ -938,6 +951,7 @@ class CatCompanionController {
   }
 
   #positionBubble(): void {
+    this.#positionToolbar();
     if (this.#bubble.hidden || this.#hidden || this.#root.dataset.tocOpen === 'true') return;
     const viewport = this.#viewportBounds();
     const character = this.#character.getBoundingClientRect();
