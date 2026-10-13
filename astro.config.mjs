@@ -25,6 +25,28 @@ function remarkArticleImagePerformance() {
   };
 }
 
+function rehypeArticleLinks() {
+  return (tree) => {
+    const visit = (node) => {
+      if (node.type === 'element' && node.tagName === 'a'
+        && /^(?:https?:)?\/\//i.test(node.properties?.href ?? '')) {
+        node.properties.target = '_blank';
+        const existingRel = node.properties.rel ?? [];
+        const rel = new Set(Array.isArray(existingRel)
+          ? existingRel
+          : String(existingRel).split(/\s+/).filter(Boolean));
+        rel.add('noopener');
+        rel.add('noreferrer');
+        node.properties.rel = [...rel];
+      }
+
+      node.children?.forEach(visit);
+    };
+
+    visit(tree);
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   markdown: {
@@ -33,7 +55,7 @@ export default defineConfig({
     },
     processor: unified({
       remarkPlugins: [remarkMath, remarkProseWhitespace, remarkArticleImagePerformance],
-      rehypePlugins: [rehypeKatex, rehypeSourceSpacing],
+      rehypePlugins: [rehypeKatex, rehypeSourceSpacing, rehypeArticleLinks],
     }),
   },
 });
