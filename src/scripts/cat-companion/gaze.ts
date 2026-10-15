@@ -94,8 +94,6 @@ export class GazeController {
   };
 
   #render(): void {
-    this.#root.style.setProperty('--pet-gaze-x', `${(this.#currentX * 5).toFixed(2)}px`);
-    this.#root.style.setProperty('--pet-gaze-y', `${(this.#currentY * 4).toFixed(2)}px`);
     this.#root.style.setProperty('--pet-asset-gaze-x', `${(this.#currentX * 1.1).toFixed(2)}px`);
     this.#root.style.setProperty('--pet-asset-gaze-y', `${(this.#currentY * 0.7).toFixed(2)}px`);
     this.#root.style.setProperty('--pet-gaze-nx', this.#currentX.toFixed(4));

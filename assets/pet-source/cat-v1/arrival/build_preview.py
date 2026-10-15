@@ -440,7 +440,10 @@ def main() -> None:
         "eye-base-left", "eye-base-right", "pupil-left", "pupil-right",
         "eyelid-half-left", "eyelid-half-right",
     ):
-        old_image = load_rgba(EYE_REVIEW / "before" / f"{name}.png")
+        old_path = EYE_REVIEW / "before" / f"{name}.png"
+        if not old_path.is_file():
+            continue
+        old_image = load_rgba(old_path)
         new_image = load_rgba(CORE / f"{name}.png")
         eye_correction[name] = {
             "beforeBbox": list(alpha_bbox(old_image) or ()),

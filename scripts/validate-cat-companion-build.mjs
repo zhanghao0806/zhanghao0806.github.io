@@ -184,7 +184,7 @@ if (
   /\bwidth:\s*190px|\bheight:\s*216px/.test(baseCharacterRule)
 ) {
   dialogueErrors.push(
-    'Base, fallback, loading, walk, arrival and asset renderers must share one 172x258 character box.',
+    'Base, loading, walk, arrival and asset renderers must share one 172x258 character box.',
   );
 }
 if (petStyles.includes('--pet-asset-tablet-') || petStyles.includes('--pet-asset-mobile-')) {
@@ -293,3 +293,10 @@ console.log(
   `Cat companion build is complete on all ${htmlFiles.length - redirectCount} content pages (${redirectCount} redirects checked); ` +
     `${lines.length} dialogue lines passed validation.`,
 );
+
+if (petController.includes("dataset.renderer = 'fallback'") || petStyles.includes('[data-pet-part=') || petStyles.includes('[data-pet-part^=')) {
+  throw new Error('Placeholder cat artwork must not return after an asset failure.');
+}
+if (!petStyles.includes('[data-cat-companion]:not([data-renderer="assets"])')) {
+  throw new Error('The cat must stay hidden until its real artwork is ready.');
+}

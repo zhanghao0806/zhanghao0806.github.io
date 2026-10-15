@@ -400,13 +400,11 @@ class CatCompanionController {
     const bounds = this.#character.getBoundingClientRect();
     const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1);
     const y = (event.clientY - bounds.top) / Math.max(bounds.height, 1);
-    const clickedNose =
-      event.target instanceof Element && Boolean(event.target.closest('[data-pet-part="nose"]'));
     const noseDistance = Math.hypot(
       (x - this.#noseHitArea.cx) / this.#noseHitArea.r,
       (y - this.#noseHitArea.cy) / this.#noseHitArea.r,
     );
-    this.#handlePetInteraction(clickedNose || noseDistance < 1 ? 'pet-nose' : 'pet-head');
+    this.#handlePetInteraction(noseDistance < 1 ? 'pet-nose' : 'pet-head');
   };
 
   #onDragPointerDown = (event: PointerEvent): void => {
@@ -758,8 +756,6 @@ class CatCompanionController {
     this.#setRootPosition(bounds.left, bounds.top, true);
     if (this.#root.dataset.renderer === 'assets') {
       void this.#playArrival();
-    } else if (this.#root.dataset.renderer === 'fallback') {
-      this.#finishRecall();
     }
     if (this.#coarsePointer) this.#openTouchToolbar();
     if (shouldMoveFocus) this.#stage.focus({ preventScroll: true });
@@ -1253,13 +1249,15 @@ class CatCompanionController {
       }
       if (this.#pendingArrival) void this.#playArrival();
     } catch {
-      this.#root.dataset.renderer = 'fallback';
+      this.#root.dataset.renderer = 'error';
+      this.#cancelSpeech();
+      this.#gaze.stop();
       if (this.#sizeMode === 'giant' && !readPetPosition('giant')) {
         requestAnimationFrame(() => this.#centerGiantMode());
       }
       this.#stopArrival(false);
       this.#pendingArrival = false;
-      this.#finishRecall();
+      this.#pendingRecallSpeech = false;
     }
   }
 
