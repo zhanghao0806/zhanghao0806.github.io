@@ -95,7 +95,6 @@ src/pages/index.astro                  首页
 src/pages/projects.astro               项目页
 src/pages/blog/index.astro             文章目录页
 src/pages/blog/[slug].astro            文章详情页
-src/pages/about.astro                  关于我
 src/content/blog/                      所有文章 Markdown
 src/lib/writing.js                     写作分类、日期格式
 src/layouts/BaseLayout.astro           全站布局和样式
@@ -223,7 +222,7 @@ date: 2026-06-04
 | `src/components/CatAlbum.astro` | 相册标题、带时间的简介、网格样式、大图弹窗和交互 |
 | `scripts/prepare-cat-album.mjs` | `photos` 列表：照片顺序、文件编号、每张文字说明、缩略图裁剪位置；以及压缩参数 |
 | `src/data/cat-album.json` | 脚本生成的图片路径、说明 `alt`、尺寸，供组件读取 |
-| `public/images/cats/` | 网站实际使用的 WebP 缩略图和完整大图 |
+| `public/images/cats/` | 网站实际使用的 WebP 缩略图、完整构图预览和清晰大图 |
 
 **每张图片点开后的文字说明，在 `scripts/prepare-cat-album.mjs` 的 `photos` 数组里写，位于每行的第二项**。例如：
 
@@ -256,14 +255,14 @@ date: 2026-06-04
 node scripts/prepare-cat-album.mjs '/Users/zhanghao/MyFile/zh-个人文件/猫咪照片'
 ```
 
-4. 删除照片时，从列表删除对应行并重新生成，同时删除 `public/images/cats/` 中该编号的 `.webp` 和 `-thumb.webp`。脚本不会自动清理旧文件，以免误删；无需删除本地原图。
+4. 删除照片时，从列表删除对应行并重新生成，同时删除 `public/images/cats/` 中该编号的 `.webp`、`-thumb.webp` 和 `-preview.webp`。脚本不会自动清理旧文件，以免误删；无需删除本地原图。
 5. 用 `npm run dev` 检查缩略图、横竖大图和说明，再运行 `npm run build`。发布时提交脚本、生成的 JSON、WebP，以及修改过的组件。
 
 仅把图片复制到目录不会自动加入相册。日常构建读取已生成的文件，不依赖本地原始照片目录，也不会重复压缩。
 
 #### 图片处理与加载
 
-处理复用项目已有的 `sharp`：自动校正照片方向，输出 560 × 560px 方形缩略图（WebP 质量 78），以及最长边不超过 1800px 的完整图片（质量 84，不放大小图），默认不保留 EXIF 元数据。缩略图使用懒加载并预留尺寸；大图在点击后才设置图片地址加载，没有一次性预加载全部大图。JavaScript 不可用时，缩略图链接仍能直接打开大图。
+处理复用项目已有的 `sharp`：自动校正照片方向，输出 560 × 560px 方形缩略图（WebP 质量 78），以及最长边不超过 1800px 的完整图片（质量 84，不放大小图），默认不保留 EXIF 元数据。另生成最长边 560px、质量 65 的完整构图预览（`-preview.webp`）。缩略图懒加载并预留尺寸；接近相册时提前加载小预览，悬停或键盘聚焦时预取对应清晰图。点击后立即显示已有缩略图，接着显示完整预览，清晰图解码完成后再替换。快速切图和关闭会使旧请求失效，避免迟到的图片覆盖当前照片；没有一次性预加载全部清晰图。JavaScript 不可用时，缩略图链接仍能直接打开大图。
 
 ## 项目页面怎么维护
 
@@ -324,45 +323,6 @@ project:
 `src/pages/blog/[category]/index.astro` 提供单独的分类归档，使用 `src/components/WritingArchive.astro` 显示该分类的完整列表。旧的分类分页链接由 `src/pages/blog/[category]/[page].astro` 跳转到完整分类页，兼容已有链接。
 
 持续往 `src/content/blog/` 添加 Markdown 文章即可，构建时会自动更新目录与文章数量。分类和日期格式在 `src/lib/writing.js` 维护，无需配置每页篇数。
-
-## 关于页面怎么维护
-
-关于页文件在：
-
-```text
-src/pages/about.astro
-```
-
-“个人信息”“项目名称”“获奖与证书”这些卡片现在都是写在这个前端页面里的静态内容。它们不是 Markdown 自动生成的。
-
-个人信息卡片在这一段附近修改：
-
-```astro
-<h2>个人信息</h2>
-<ul class="info-list">
-  <li><strong>姓名</strong><span>张浩</span></li>
-  <li>
-    <strong>教育经历</strong>
-    <span class="education-history">
-      <span>2021-2025 南京理工大学</span>
-      <span>2026-至今 浙江大学</span>
-    </span>
-  </li>
-</ul>
-```
-
-获奖与证书卡片在这一段附近修改：
-
-```astro
-<h2>获奖与证书</h2>
-<ul class="info-list">
-  <li><strong>奖项名称</strong><span>获奖时间或说明</span></li>
-</ul>
-```
-
-如果以后获奖很多，可以继续复制 `<li>...</li>` 新增一行。
-
-
 
 ## 图片放哪里
 

@@ -2,6 +2,7 @@
   {
     "alt": "椅子上的长毛",
     "thumbnail": "/images/cats/01-thumb.webp",
+    "preview": "/images/cats/01-preview.webp",
     "src": "/images/cats/01.webp",
     "width": 1706,
     "height": 1279
@@ -9,6 +10,7 @@
   {
     "alt": "书架旁的长毛",
     "thumbnail": "/images/cats/02-thumb.webp",
+    "preview": "/images/cats/02-preview.webp",
     "src": "/images/cats/02.webp",
     "width": 1279,
     "height": 1706
@@ -16,6 +18,7 @@
   {
     "alt": "吃饭的长毛",
     "thumbnail": "/images/cats/03-thumb.webp",
+    "preview": "/images/cats/03-preview.webp",
     "src": "/images/cats/03.webp",
     "width": 1706,
     "height": 1279
@@ -23,6 +26,7 @@
   {
     "alt": "被抱着摸摸的长毛",
     "thumbnail": "/images/cats/04-thumb.webp",
+    "preview": "/images/cats/04-preview.webp",
     "src": "/images/cats/04.webp",
     "width": 1279,
     "height": 1706
@@ -30,6 +34,7 @@
   {
     "alt": "躺地撒娇的长毛",
     "thumbnail": "/images/cats/05-thumb.webp",
+    "preview": "/images/cats/05-preview.webp",
     "src": "/images/cats/05.webp",
     "width": 1012,
     "height": 1800
@@ -37,6 +42,7 @@
   {
     "alt": "吃完饭舔嘴的长毛",
     "thumbnail": "/images/cats/06-thumb.webp",
+    "preview": "/images/cats/06-preview.webp",
     "src": "/images/cats/06.webp",
     "width": 1706,
     "height": 1279
@@ -44,6 +50,7 @@
   {
     "alt": "要猫条的小黄长毛",
     "thumbnail": "/images/cats/07-thumb.webp",
+    "preview": "/images/cats/07-preview.webp",
     "src": "/images/cats/07.webp",
     "width": 1279,
     "height": 1706
@@ -51,6 +58,7 @@
   {
     "alt": "抬头看镜头的小黄长毛",
     "thumbnail": "/images/cats/08-thumb.webp",
+    "preview": "/images/cats/08-preview.webp",
     "src": "/images/cats/08.webp",
     "width": 1279,
     "height": 1706

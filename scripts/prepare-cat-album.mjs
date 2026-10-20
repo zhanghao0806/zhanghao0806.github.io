@@ -28,9 +28,13 @@ for (const [id, alt, position] of photos) {
   const full = await sharp(input).rotate()
     .resize(1800, 1800, { fit: 'inside', withoutEnlargement: true })
     .webp({ quality: 84 }).toFile(join(output, `${id}.webp`));
-  bytes += thumb.size + full.size;
+  const preview = await sharp(input).rotate()
+    .resize(560, 560, { fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 65 }).toFile(join(output, `${id}-preview.webp`));
+  bytes += thumb.size + full.size + preview.size;
   manifest.push({
     alt, thumbnail: `/images/cats/${id}-thumb.webp`,
+    preview: `/images/cats/${id}-preview.webp`,
     src: `/images/cats/${id}.webp`, width: full.width, height: full.height,
   });
 }

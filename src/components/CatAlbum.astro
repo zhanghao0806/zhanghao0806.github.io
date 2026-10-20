@@ -5,7 +5,7 @@ import photos from '../data/cat-album.json';
 <section class="section cat-album" aria-labelledby="cat-album-title">
   <header class="album-heading">
     <p class="album-kicker">A little album of my feline friends</p>
-    <h2 id="cat-album-title">长毛和小黄长毛</h2>
+    <h2 id="cat-album-title">两只哈基米</h2>
   </header>
   <p class="album-description">2025.9—2026.3，长毛和小黄长毛的照片。长毛温顺粘人，脾气特别好，爱吃羊奶罐头，也让抱。小黄长毛小时候对人类很警惕，后来喂久了，也愿意让人摸了。</p>
   <div class="album-grid">
@@ -37,16 +37,47 @@ import photos from '../data/cat-album.json';
   if (album && dialog && image && caption) {
     let current = 0;
     let previousOverflow = '';
+    let request = 0;
+    const decoded = new Map<string, Promise<HTMLImageElement>>();
+    const load = (src: string) => {
+      if (!decoded.has(src)) {
+        const photo = new Image();
+        photo.src = src;
+        decoded.set(src, photo.decode().then(() => photo).catch((error) => {
+          decoded.delete(src);
+          throw error;
+        }));
+      }
+      return decoded.get(src)!;
+    };
     const show = (index: number) => {
+      const token = ++request;
       current = (index + photos.length) % photos.length;
       const photo = photos[current];
-      image.src = photo.src;
+      // Show the cached thumbnail immediately, then the uncropped preview,
+      // replacing it only once the full image has finished decoding.
+      image.src = photo.thumbnail;
+      image.style.aspectRatio = `${photo.width} / ${photo.height}`;
       image.alt = photo.alt;
       image.width = photo.width;
       image.height = photo.height;
       caption.textContent = photo.alt;
+      let fullReady = false;
+      void load(photo.preview).then(() => {
+        if (token === request && !fullReady) image.src = photo.preview;
+      }).catch(() => {});
+      void load(photo.src).then(() => {
+        if (token === request) {
+          fullReady = true;
+          image.src = photo.src;
+        }
+      }).catch(() => {});
     };
     album.querySelectorAll<HTMLAnchorElement>('[data-photo-index]').forEach((link) => {
+      const photo = photos[Number(link.dataset.photoIndex)];
+      const warm = () => { void load(photo.src).catch(() => {}); };
+      link.addEventListener('pointerenter', warm, { once: true });
+      link.addEventListener('focus', warm, { once: true });
       link.addEventListener('click', (event) => {
         if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
@@ -56,6 +87,16 @@ import photos from '../data/cat-album.json';
         dialog.showModal();
       });
     });
+    // Warm small, uncropped previews only when their thumbnails approach view.
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const link = entry.target as HTMLAnchorElement;
+        void load(photos[Number(link.dataset.photoIndex)].preview).catch(() => {});
+        observer.unobserve(link);
+      }
+    }, { rootMargin: '200px' });
+    album.querySelectorAll('[data-photo-index]').forEach((link) => observer.observe(link));
     dialog.querySelector('.lightbox-close')?.addEventListener('click', () => dialog.close());
     dialog.querySelector('.lightbox-prev')?.addEventListener('click', () => show(current - 1));
     dialog.querySelector('.lightbox-next')?.addEventListener('click', () => show(current + 1));
@@ -69,6 +110,7 @@ import photos from '../data/cat-album.json';
       if (event.target === dialog || event.target === dialog.querySelector('.lightbox-stage')) dialog.close();
     });
     dialog.addEventListener('close', () => {
+      request++;
       document.body.style.overflow = previousOverflow;
       image.removeAttribute('src');
     });
@@ -78,7 +120,6 @@ import photos from '../data/cat-album.json';
 <style>
   .cat-album { margin-top: 28px; border-top: 1px solid var(--line); }
   .album-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
-  .album-heading h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 600; }
   .album-description { margin: 14px 0 22px; color: var(--muted); font-size: 13px; line-height: 1.8; }
   .album-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
   .album-photo { display: block; overflow: hidden; border: 1px solid var(--line); border-radius: 4px; background: var(--accent-soft); cursor: zoom-in; }

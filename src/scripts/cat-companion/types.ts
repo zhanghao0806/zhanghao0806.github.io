@@ -30,8 +30,7 @@ export type PetTrigger =
   | 'recall'
   | 'idle'
   | 'page-blog'
-  | 'page-projects'
-  | 'page-about';
+  | 'page-projects';
 
 export interface PetLine {
   id: string;

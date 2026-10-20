@@ -100,7 +100,6 @@ const expectedTriggers = [
   'idle',
   'page-blog',
   'page-projects',
-  'page-about',
 ];
 const knownMoods = new Set([
   'neutral',
