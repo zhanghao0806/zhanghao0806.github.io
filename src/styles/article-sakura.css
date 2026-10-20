@@ -568,13 +568,18 @@ html {
   line-height: 1.35;
 }
 
-.article-prose table {
-  display: block;
-  width: 100%;
+.article-prose .article-table-scroll {
+  max-width: 100%;
   margin: 1.4em 0;
   overflow-x: auto;
   border: 1px solid var(--sakura-light);
   border-radius: 9px;
+}
+
+.article-prose table {
+  display: table;
+  width: 100%;
+  margin: 0;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.86rem;
@@ -588,6 +593,9 @@ html {
   border-right: 1px solid #f3e8ec;
   border-bottom: 1px solid #f3e8ec;
   color: #40383c;
+}
+
+.article-prose :is(th, td):not([align]) {
   text-align: left;
 }
 

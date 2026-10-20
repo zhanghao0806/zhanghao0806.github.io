@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CatAlbum from '../components/CatAlbum.astro';
 import { formatDate, sortPostsByDateDesc } from '../lib/writing.js';
 
 const postModules = import.meta.glob('../content/blog/*.md', { eager: true });
@@ -25,27 +26,50 @@ const featuredProjects = [
       { label: '线上页面', href: 'https://zhanghao0806.github.io/' },
     ],
   },
+
+  {
+    title: '计算系统跨层优化实验',
+    summary: '通过两个简单实验复现两个问题：为什么 CPU 线程数越多，但是程序不一定越快？相同的多线程下，不同的内存布局，会如何影响多线程性能？',
+    tags: ['性能分析', '缓存行'],
+    links: [
+      { label: 'GitHub', href: 'https://github.com/zhanghao0806/cpu_counter_experiment' },
+      { label: '文章', href: 'https://zhanghao0806.github.io/blog/2026-10-20/' },
+    ],
+  },
 ];
-const heroImage = '/images/home/hero-zh-coder.jpg';
 ---
 
 <BaseLayout title="张浩 | 个人主页">
-  <section class="hero-panel">
-    <div class="hero-copy">
-      <h1>Seize the day.</h1>
-      <p class="hero-quote">“在坚冰还盖着北海的时候，我看到了怒放的梅花”</p>
-      <div class="hero-actions">
-        <a class="button primary" href="/blog/">阅读文章</a>
-        <a class="button secondary" href="/projects/">查看项目</a>
-      </div>
+  <section class="home-profile" aria-labelledby="profile-name" lang="en">
+    <div class="profile-portrait">
+      <img src="/avatar.jpg" alt="Hao Zhang's cat avatar" width="940" height="939" decoding="async" />
+      <p>A cat person, of course.</p>
     </div>
-    {
-      heroImage ? (
-        <img class="hero-image" src={heroImage} alt="" loading="lazy" decoding="async" />
-      ) : (
-        <div class="hero-visual" aria-hidden="true"></div>
-      )
-    }
+    <div class="profile-copy">
+      <p class="profile-kicker">Master's student · Zhejiang University</p>
+      <h1 id="profile-name">Hao Zhang <span lang="zh-CN">张浩</span></h1>
+      <p class="profile-intro">
+        I'm a master's student at the School of Software Technology, Zhejiang University.
+        My current research focuses on AI Agents for Quantum Circuit Generation.
+        Outside of my studies, I love cats.
+      </p>
+      <div class="profile-education">
+        <h3>Education</h3>
+        <ul>
+          <li>
+            <span class="profile-years">2026 — Present</span>
+            <span><strong>Zhejiang University</strong><span class="profile-degree">Master's studies</span></span>
+          </li>
+          <li>
+            <span class="profile-years">2021 — 2025</span>
+            <span><strong>Nanjing University of Science and Technology</strong><span class="profile-degree">Undergraduate studies</span></span>
+          </li>
+        </ul>
+      </div>
+      <a class="profile-email" href="mailto:zhanghao4536@zju.edu.cn">
+        <span>Email</span> zhanghao4536@zju.edu.cn <span aria-hidden="true">↗</span>
+      </a>
+    </div>
   </section>
 
   <section class="section">
@@ -107,59 +131,157 @@ const heroImage = '/images/home/hero-zh-coder.jpg';
       }
     </ul>
   </section>
+  <CatAlbum />
 </BaseLayout>
 
 <style>
-  .hero-copy {
-    display: flex;
-    flex-direction: column;
-    align-self: stretch;
-    justify-content: center;
-    min-width: 0;
-    padding: 12px 0;
+  .home-profile {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(32px, 5vw, 64px);
+    padding: 42px;
+    margin-bottom: 32px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
   }
 
-  .hero-copy h1 {
-    font-size: clamp(36px, 4.5vw, 56px);
-    line-height: 1.15;
-    letter-spacing: -0.025em;
-    text-wrap: balance;
+  .profile-portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 12px;
   }
 
-  .hero-quote {
-    margin-top: 22px;
-    max-width: 28em;
+  .profile-portrait p {
+    margin: 14px 0 0;
     color: var(--muted);
-    font-family: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
-    font-size: clamp(19px, 1.8vw, 22px);
-    font-style: italic;
-    line-height: 1.9;
-    text-wrap: balance;
+    text-align: center;
+    font-size: 13px;
   }
 
-  .hero-copy .hero-actions {
+  .profile-kicker {
+    margin: 0 0 12px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  #profile-name {
+    display: flex;
     flex-wrap: wrap;
-    gap: 14px;
-    margin-top: 40px;
+    align-items: baseline;
+    gap: 18px;
+    font-family: Georgia, "Songti SC", serif;
+    font-size: clamp(36px, 4vw, 48px);
+    font-weight: 500;
+    letter-spacing: -0.025em;
   }
 
-  .hero-copy .button {
-    min-height: 46px;
-    padding: 10px 20px;
+  #profile-name span {
+    color: var(--muted);
+    font-size: 0.55em;
+    letter-spacing: 0.04em;
+  }
+
+  .profile-intro {
+    margin: 22px 0 24px;
+    color: #475569;
     font-size: 16px;
+    line-height: 1.85;
   }
 
-  @media (max-width: 700px) {
-    .hero-copy {
-      padding: 4px 0;
+  .profile-education {
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  .profile-education h3 {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .profile-education ul {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+  }
+
+  .profile-education li {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .profile-education strong {
+    font-weight: 550;
+  }
+
+  .profile-years,
+  .profile-degree {
+    color: var(--muted);
+  }
+
+  .profile-degree {
+    display: block;
+    font-size: 13px;
+  }
+
+  .profile-email {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 24px;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+
+  .profile-email > span:first-child {
+    font-weight: 650;
+  }
+
+  .profile-email:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .profile-email:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 5px;
+  }
+
+  @media (max-width: 850px) {
+    .home-profile {
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 28px;
+      padding: 28px;
     }
 
-    .hero-quote {
-      margin-top: 18px;
-    }
-
-    .hero-copy .hero-actions {
-      margin-top: 30px;
+    .profile-education li {
+      grid-template-columns: 1fr;
+      gap: 2px;
     }
   }
+
+  @media (max-width: 600px) {
+    .home-profile {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 24px;
+    }
+
+    .profile-portrait {
+      width: 160px;
+    }
+  }
+
 </style>

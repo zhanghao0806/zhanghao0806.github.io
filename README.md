@@ -55,6 +55,10 @@ category: note
 https://zhanghao0806.github.io/blog/qnn-note-02/
 ```
 
+文件名用于管理源文件，网址由 frontmatter 中的 `slug` 决定，两者不必相同。每篇文章的 `slug` 必须唯一，建议统一写成带引号的字符串，例如 `slug: '2026-10-19-matrix'` 或 `slug: '20261019'`。最外层引号是 YAML 语法，不会出现在网址里；纯数字 slug 也应保留引号，避免被解析为数字。frontmatter 的每个字段单独占一行。
+
+当前读取规则是 `src/content/blog/*.md`，因此文章应直接放在这个目录下，放进子目录不会被自动读取。当前没有草稿或定时发布过滤：放入此目录的文章会参与构建，未来日期也会参与排序。
+
 `category` 只能使用下面三种之一：
 
 ```text
@@ -98,7 +102,7 @@ src/layouts/BaseLayout.astro           全站布局和样式
 public/avatar.jpg                      导航头像
 public/favicon.jpg                     浏览器标签页图标
 public/images/                         文章图片
-public/images/home/                    首页配图
+public/images/cats/                    猫咪相册缩略图和大图
 ```
 
 ## 首页怎么维护
@@ -109,23 +113,59 @@ public/images/home/                    首页配图
 src/pages/index.astro
 ```
 
-### 代表文章是怎么选出来的
+### 在首页添加项目卡片
 
-首页的“代表文章”优先读取 `featuredSlugs`：
-
-```js
-const featuredSlugs = [];
-```
-
-如果 `featuredSlugs` 是空数组，首页会自动展示最新的 3 篇文章。
-
-如果你以后想固定指定几篇代表文章，就把文章的 `slug` 写进去：
+打开 `src/pages/index.astro`，找到顶部的 `featuredProjects` 数组，在数组的 `[` 和 `]` 之间添加一个对象。对象之间用逗号分隔：
 
 ```js
-const featuredSlugs = ['qnn1', 'weekly-review01', 'tech-note-example'];
+{
+  title: '计算系统跨层优化实验',
+  summary: '通过多线程计数实验，分析线程数和内存布局对性能的影响。',
+  tags: ['性能分析', '缓存行'],
+  links: [
+    { label: 'GitHub', href: 'https://github.com/zhanghao0806/cpu_counter_experiment' },
+    { label: '文章', href: '/blog/2026-10-20/' },
+  ],
+},
 ```
 
-这些 `slug` 来自每篇 Markdown 文章开头的 frontmatter：
+| 字段 | 显示位置与写法 |
+| --- | --- |
+| `title` | 卡片标题 |
+| `summary` | 标题下面的项目简介 |
+| `tags` | 标签字符串数组；没有标签可写 `[]` |
+| `links` | 卡片底部的链接数组；每个链接用 `label` 设置文字、`href` 设置地址，没有链接可写 `[]` |
+
+首页通过 `featuredProjects.map(...)` 渲染卡片，按数组中的顺序显示全部对象，没有自动排序或数量限制。要调整顺序就移动整个对象；要从首页移除卡片就删除对应对象。
+
+首页项目卡片与 `/projects/` 项目页是两份独立数据：
+
+| 展示位置 | 修改文件 | 数组 |
+| --- | --- | --- |
+| 首页“项目” | `src/pages/index.astro` | `featuredProjects` |
+| 项目页 | `src/pages/projects.astro` | `projects` |
+
+如果两处都要展示，需要把同一个项目对象分别加入两个数组，后续修改也要分别同步。只修改项目页不会自动更新首页；新增 `category: experiment` 的文章也不会自动生成项目卡片。
+
+站内文章链接推荐使用 `/blog/文章slug/`，这样本地预览和线上都指向当前网站。GitHub 等外部链接使用完整的 `https://...` 地址。
+
+### 首页“文章”卡片是怎么选出来的
+
+首页“文章”区域使用 `featuredPosts`，先展示 `featuredSlugs` 指定的文章，再用最新文章补足 3 篇。当前配置为：
+
+```js
+const featuredSlugs = ['llm01'];
+```
+
+因此，当前会先显示 `llm01`，再按日期选取另外最新的 2 篇。这里读取全部分类，不限于项目文章或笔记。
+
+要指定其他文章，把对应的 `slug` 写进数组，例如：
+
+```js
+const featuredSlugs = ['llm01', '2026-10-20', '2026-10-19-matrix'];
+```
+
+这些值必须与 Markdown 开头的 `slug` 完全一致，注意大小写；不要填写文件名、文章标题或完整网址。例如：
 
 ```md
 ---
@@ -136,7 +176,13 @@ category: note
 ---
 ```
 
-指定后，首页会按 `featuredSlugs` 里的顺序展示，而不是按日期自动排序。
+具体显示规则：
+
+- 指定文章按 `featuredSlugs` 中的顺序排在前面。
+- 指定文章不足 3 篇时，从其余文章中按 `date` 从新到旧补齐；补充部分会排除已经指定的 slug。
+- 空数组 `[]` 表示自动展示最新 3 篇；文章总数不足 3 篇时展示现有文章。
+- 不存在的 slug 会被忽略，仍用最新文章补位。重复 slug 不会自动去重，因此不要重复填写。
+- 指定超过 3 篇有效文章时会全部展示，当前代码没有把指定列表截断为 3 篇。
 
 ### 最新文章模块怎么更新
 
@@ -156,39 +202,68 @@ date: 2026-06-04
 
 不需要手动修改“最新文章”列表。
 
-### 首页图怎么更换
+它与上方“文章”卡片独立筛选，所以同一篇文章可以同时出现在两个区域。修改 `featuredSlugs` 不会改变“最新文章”的排序。
 
-首页右侧目前是 CSS 生成的简洁配图。如果以后想换成自己的图片，建议把图片放在：
+### 新增文章到页面的完整流程
 
-```text
-public/images/home/
-```
+1. 在 `src/content/blog/` 直接新建 `.md`，填写 `title`、唯一的字符串 `slug`、`date` 和合法的 `category`，然后写正文。
+2. 构建时，首页读取这些 Markdown 模块，用 `src/lib/writing.js` 中的 `sortPostsByDateDesc` 按日期降序排序，再分别生成“文章”卡片和“最新文章”列表。
+3. `src/pages/blog/index.astro` 根据 `category` 把文章放进对应栏目；`src/pages/blog/[slug].astro` 根据 `slug` 生成 `/blog/slug/` 详情页。
+4. 如需让文章固定出现在首页，修改 `featuredSlugs`；如需展示项目简介和仓库入口，另行维护 `featuredProjects`，并按需要同步项目页的 `projects`。
+5. 运行 `npm run dev`，检查首页、文章目录、文章详情及项目卡片链接；发布前运行 `npm run build`，再按下方发布流程推送。
 
-例如：
+### 首页猫咪相册
 
-```text
-public/images/home/hero.png
-```
+首页底部的相册使用项目自身的 Astro 组件和原生 `<dialog>`，没有额外引入相册库。桌面端四列、手机端两列方形缩略图；点击后，在白色半透明遮罩上显示居中白色相框，保留照片完整的横竖构图，文字说明放在图片下面。支持左右按钮、方向键、Esc、关闭按钮和点击相框空白处或遮罩关闭；关闭后恢复页面滚动。
 
-然后打开：
+#### 文件职责与每张照片的说明
 
-```text
-src/pages/index.astro
-```
+| 文件 | 维护内容 |
+| --- | --- |
+| `src/components/CatAlbum.astro` | 相册标题、带时间的简介、网格样式、大图弹窗和交互 |
+| `scripts/prepare-cat-album.mjs` | `photos` 列表：照片顺序、文件编号、每张文字说明、缩略图裁剪位置；以及压缩参数 |
+| `src/data/cat-album.json` | 脚本生成的图片路径、说明 `alt`、尺寸，供组件读取 |
+| `public/images/cats/` | 网站实际使用的 WebP 缩略图和完整大图 |
 
-把：
-
-```js
-const heroImage = '';
-```
-
-改成：
+**每张图片点开后的文字说明，在 `scripts/prepare-cat-album.mjs` 的 `photos` 数组里写，位于每行的第二项**。例如：
 
 ```js
-const heroImage = '/images/home/hero.png';
+['01', '椅子上的长毛', 'east'],
 ```
 
-注意路径从 `/images/...` 开始，不要写 `/public/images/...`。
+三项分别是源文件编号（对应 `01.jpg`）、文字说明、方形缩略图裁剪位置。说明同时作为图片的替代文本，建议简短描述照片内容。修改说明后重新运行脚本；不要只改生成的 JSON，否则下次生成会覆盖。列表顺序就是网页展示顺序。
+
+| 照片 | 当前说明 | 缩略图裁剪 |
+| --- | --- | --- |
+| `01.jpg` | 椅子上的长毛 | `east`，靠右 |
+| `02.jpg` | 书架旁的长毛 | `centre`，居中 |
+| `03.jpg` | 吃饭的长毛 | `east`，靠右 |
+| `04.jpg` | 被抱着摸摸的长毛 | `centre`，居中 |
+| `05.jpg` | 躺地撒娇的长毛 | `centre`，居中 |
+| `06.jpg` | 吃完饭舔嘴的长毛 | `centre`，居中 |
+| `07.jpg` | 要猫条的小黄长毛 | `centre`，居中 |
+| `08.jpg` | 抬头看镜头的小黄长毛 | `centre`，居中 |
+
+裁剪位置还可用 `north`（靠上）、`west`（靠左）。只裁剪缩略图，大图不裁剪。
+
+#### 新增、修改和删除照片
+
+1. 把原始 JPG 放在本地来源目录；当前目录是 `/Users/zhanghao/MyFile/zh-个人文件/猫咪照片`，原图不会被修改或复制进仓库。
+2. 修改脚本的 `photos` 列表：新增照片时添加如 `['09', '新照片的说明', 'centre']`；更换照片时替换来源目录中相应的 JPG；调整顺序时移动整行。
+3. 在项目根目录执行生成命令：
+
+```sh
+node scripts/prepare-cat-album.mjs '/Users/zhanghao/MyFile/zh-个人文件/猫咪照片'
+```
+
+4. 删除照片时，从列表删除对应行并重新生成，同时删除 `public/images/cats/` 中该编号的 `.webp` 和 `-thumb.webp`。脚本不会自动清理旧文件，以免误删；无需删除本地原图。
+5. 用 `npm run dev` 检查缩略图、横竖大图和说明，再运行 `npm run build`。发布时提交脚本、生成的 JSON、WebP，以及修改过的组件。
+
+仅把图片复制到目录不会自动加入相册。日常构建读取已生成的文件，不依赖本地原始照片目录，也不会重复压缩。
+
+#### 图片处理与加载
+
+处理复用项目已有的 `sharp`：自动校正照片方向，输出 560 × 560px 方形缩略图（WebP 质量 78），以及最长边不超过 1800px 的完整图片（质量 84，不放大小图），默认不保留 EXIF 元数据。缩略图使用懒加载并预留尺寸；大图在点击后才设置图片地址加载，没有一次性预加载全部大图。JavaScript 不可用时，缩略图链接仍能直接打开大图。
 
 ## 项目页面怎么维护
 
@@ -221,6 +296,7 @@ src/pages/projects.astro
 5. `summary` 写一句话简介。
 6. 第一个链接写项目文章地址：`/blog/mnist-qnn-lab/`。
 7. 第二个链接写这个项目的 GitHub 仓库地址。
+8. 如果首页也要展示，把同一个对象加入 `src/pages/index.astro` 的 `featuredProjects` 数组。
 
 目前项目卡片不会自动从项目文章生成。原因是项目页需要“项目中文名、简介、GitHub 仓库、相关文章链接”这些结构化信息，而普通 Markdown 文章现在只保存了 `title / slug / date / category`。
 

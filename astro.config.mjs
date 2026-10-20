@@ -5,6 +5,7 @@ import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import remarkProseWhitespace from './src/lib/remark-prose-whitespace.mjs';
 import rehypeSourceSpacing from './src/lib/rehype-source-spacing.mjs';
+import rehypeArticleTables from './src/lib/rehype-article-tables.mjs';
 
 function remarkArticleImagePerformance() {
   return (tree) => {
@@ -55,7 +56,7 @@ export default defineConfig({
     },
     processor: unified({
       remarkPlugins: [remarkMath, remarkProseWhitespace, remarkArticleImagePerformance],
-      rehypePlugins: [rehypeKatex, rehypeSourceSpacing, rehypeArticleLinks],
+      rehypePlugins: [rehypeKatex, rehypeSourceSpacing, rehypeArticleLinks, rehypeArticleTables],
     }),
   },
 });

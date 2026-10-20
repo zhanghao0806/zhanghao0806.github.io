@@ -1,0 +1,108 @@
+---
+import photos from '../data/cat-album.json';
+---
+
+<section class="section cat-album" aria-labelledby="cat-album-title">
+  <header class="album-heading">
+    <p class="album-kicker">A little album of my feline friends</p>
+    <h2 id="cat-album-title">长毛和小黄长毛</h2>
+  </header>
+  <p class="album-description">2025.9—2026.3，长毛和小黄长毛的照片。长毛温顺粘人，脾气特别好，爱吃羊奶罐头，也让抱。小黄长毛小时候对人类很警惕，后来喂久了，也愿意让人摸了。</p>
+  <div class="album-grid">
+    {photos.map((photo, index) => (
+      <a class="album-photo" href={photo.src} data-photo-index={index} aria-label={`查看完整图片：${photo.alt}`}>
+        <img src={photo.thumbnail} alt={photo.alt} width="560" height="560" loading="lazy" decoding="async" />
+      </a>
+    ))}
+  </div>
+  <dialog class="album-lightbox" aria-label="猫咪相册大图预览">
+    <div class="lightbox-toolbar">
+      <button class="lightbox-close" type="button" aria-label="关闭图片">关闭 ×</button>
+    </div>
+    <div class="lightbox-stage">
+      <button class="lightbox-prev" type="button" aria-label="上一张">‹</button>
+      <img class="lightbox-image" alt="" />
+      <button class="lightbox-next" type="button" aria-label="下一张">›</button>
+    </div>
+    <p class="lightbox-caption" aria-live="polite"></p>
+  </dialog>
+</section>
+
+<script>
+  import photos from '../data/cat-album.json';
+  const album = document.querySelector('.cat-album');
+  const dialog = album?.querySelector<HTMLDialogElement>('dialog');
+  const image = dialog?.querySelector<HTMLImageElement>('.lightbox-image');
+  const caption = dialog?.querySelector('.lightbox-caption');
+  if (album && dialog && image && caption) {
+    let current = 0;
+    let previousOverflow = '';
+    const show = (index: number) => {
+      current = (index + photos.length) % photos.length;
+      const photo = photos[current];
+      image.src = photo.src;
+      image.alt = photo.alt;
+      image.width = photo.width;
+      image.height = photo.height;
+      caption.textContent = photo.alt;
+    };
+    album.querySelectorAll<HTMLAnchorElement>('[data-photo-index]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        show(Number(link.dataset.photoIndex));
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        dialog.showModal();
+      });
+    });
+    dialog.querySelector('.lightbox-close')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('.lightbox-prev')?.addEventListener('click', () => show(current - 1));
+    dialog.querySelector('.lightbox-next')?.addEventListener('click', () => show(current + 1));
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        show(current + (event.key === 'ArrowLeft' ? -1 : 1));
+      }
+    });
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog || event.target === dialog.querySelector('.lightbox-stage')) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      document.body.style.overflow = previousOverflow;
+      image.removeAttribute('src');
+    });
+  }
+</script>
+
+<style>
+  .cat-album { margin-top: 28px; border-top: 1px solid var(--line); }
+  .album-kicker { margin: 0 0 12px; color: var(--accent); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .album-heading h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 600; }
+  .album-description { margin: 14px 0 22px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+  .album-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+  .album-photo { display: block; overflow: hidden; border: 1px solid var(--line); border-radius: 4px; background: var(--accent-soft); cursor: zoom-in; }
+  .album-photo img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; transition: transform 180ms ease; }
+  .album-photo:hover img { transform: scale(1.035); }
+  .album-photo:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+  .album-lightbox { position: fixed; inset: 0; width: fit-content; max-width: calc(100vw - 40px); max-height: calc(100dvh - 40px); margin: auto; padding: 0 24px 16px; border: 1px solid var(--line); border-radius: 4px; background: white; color: var(--text); box-shadow: 0 12px 48px rgba(15, 23, 42, 0.06); }
+  .album-lightbox::backdrop { background: rgba(255, 255, 255, 0.92); }
+  .lightbox-toolbar { display: flex; justify-content: flex-end; }
+  .lightbox-caption { max-width: 70ch; margin: 14px auto 0; font-size: 13px; line-height: 1.6; color: var(--muted); text-align: center; overflow-wrap: anywhere; }
+  .album-lightbox button { min-width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--muted); cursor: pointer; font: inherit; }
+  .album-lightbox button:hover { color: var(--accent-strong); background: var(--accent-soft); }
+  .album-lightbox button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .lightbox-stage { position: relative; }
+  .lightbox-image { display: block; width: auto; height: auto; max-width: min(1000px, calc(100vw - 90px)); max-height: calc(100dvh - 170px); object-fit: contain; margin: auto; }
+  .album-lightbox .lightbox-prev, .album-lightbox .lightbox-next { position: absolute; top: 50%; transform: translateY(-50%); border-radius: 3px; background: rgba(255, 255, 255, 0.85); font-size: 28px; }
+  .lightbox-prev { left: 8px; }
+  .lightbox-next { right: 8px; }
+  @media (max-width: 700px) {
+    .album-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .album-lightbox { max-width: calc(100vw - 24px); padding: 0 12px 12px; }
+    .lightbox-image { max-width: calc(100vw - 50px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .album-photo img { transition: none; }
+  }
+</style>
