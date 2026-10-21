@@ -345,14 +345,18 @@ html {
   margin-top: 0.35em;
 }
 
-.article-prose li > :is(ul, ol)::before {
+/* A list item's continuation can be prose, math, code or another list.
+   Anchor its guide to the whole item, not just to a nested ul/ol. Tight
+   Markdown lists use a span for their first line; loose lists use a p. */
+.article-prose li:has(> :is(p, span) ~ *)::before {
   content: "";
   position: absolute;
-  top: 0.25em;
-  bottom: 0.45em;
-  left: -0.92em;
+  top: calc(1em * var(--source-leading));
+  bottom: 0.2em;
+  left: -0.9em;
   width: 1px;
-  background: linear-gradient(var(--sakura-light), rgba(255, 183, 205, 0.18));
+  background: var(--sakura);
+  pointer-events: none;
 }
 
 .article-prose input[type="checkbox"] {
