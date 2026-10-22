@@ -87,6 +87,21 @@ reflections     杂思录
 
 `npm run dev` / `npm run build` 会先自动生成字体；推送到远程 `main` 后，GitHub Actions 自动安装字体工具、裁剪、构建和发布。本地首次使用需运行 `python -m pip install -r scripts/requirements-fonts.txt`，可通过 `FONT_PYTHON` 指定 Python 环境。开发服务运行中新增用字后执行 `npm run font:subset` 或重启。构建会检查汉字覆盖，发现缺字就中止，避免发布混合字体。
 
+## 文章评论（giscus）
+
+所有文章末尾都有“评论”按钮，首次点击才加载 giscus；再次点击可收起，重新展开保留原来的评论框。顶部采用紧凑输入框和右侧提交按钮，下方评论按最新优先显示，保留原生头像、GitHub 用户名和相对时间。隐藏预览标签、排序切换、表情回应、“退出登录”按钮及“评论数／由 giscus 提供支持”标题行。隐藏退出按钮只影响界面，不更改登录状态或已发表的评论。查看无需登录，提交需登录 GitHub 并授权 giscus。
+
+- 页面组件：`src/components/ArticleComments.astro`；按钮与加载失败提示在这里维护。
+- 自定义主题：`public/styles/giscus.css`，正式页面从本站加载；本地 HTTP 预览使用 `src/data/giscus.json` 中 `previewTheme` 指向的 HTTPS 副本（评论仓库的 `giscus.css`，通过固定提交的 jsDelivr 地址加载）。修改主题后需同步预览副本并更新提交地址；正式网站随正常构建发布即可。主题依赖 giscus 的 CSS 类名，上游调整界面时需复核。
+- 排序配置：`config/giscus-repository.json` 是评论仓库根目录 `giscus.json` 的本地副本，`defaultCommentOrder` 设置为 `newest`。它必须在评论仓库生效，单独修改主页仓库的副本不会改变排序。
+- 仓库配置：`src/data/giscus.json`；当前关联公开仓库 `zhanghao0806/blog-comments` 的 `Announcements` 分类。仓库需开启 Discussions，并安装 giscus GitHub App。
+- 文章按固定字符串 `blog/<slug>` 严格匹配讨论帖，不受文章标题、域名和本地预览地址影响。已有评论的文章不要随意改 slug。
+- 讨论帖会在首次留言时自动创建；构建、浏览或展开空评论区不会创建帖子。数据保存在 GitHub Discussions，不在 Markdown 文件中。
+- OAuth 返回时会自动展开评论区以完成登录。网络超时会提供重试和 GitHub 讨论区入口，正文不依赖评论服务。
+- 本地预览也连接真实评论仓库，不要随意提交测试留言；首次留言的回链固定为正式文章网址。
+
+配置 ID 是公开标识，不是密钥。安装或重装入口：https://github.com/apps/giscus 。此功能不需要在网站保存 GitHub token。
+
 ## 常用目录
 
 ```text

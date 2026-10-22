@@ -1,0 +1,100 @@
+/* Keep giscus's accessible controls and Markdown styling, simplify its chrome. */
+@import url('https://giscus.app/themes/light.css');
+
+main {
+  --color-fg-default: #332d30;
+  --color-fg-muted: #887980;
+  --color-fg-subtle: #9c8e95;
+  --color-canvas-default: #ffffff;
+  --color-canvas-subtle: #fff8fa;
+  --color-border-default: #f0dce3;
+  --color-border-muted: #f6e9ee;
+  --color-accent-fg: #cb5177;
+  --color-accent-emphasis: #cb5177;
+  --color-accent-muted: #f4d5df;
+  --color-accent-subtle: #fff0f5;
+  --color-btn-primary-bg: #cb5177;
+  --color-btn-primary-border: #cb5177;
+  --color-btn-primary-hover-bg: #b84367;
+  --color-btn-primary-hover-border: #b84367;
+  --color-btn-primary-disabled-bg: #e9becb;
+  --color-btn-primary-disabled-border: #e9becb;
+  --color-btn-primary-disabled-text: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* Input stays first; no count/branding row, sorting tabs, preview or reactions. */
+.gsc-header,
+.gsc-comment-box-tabs,
+.gsc-comment-box-textarea-extras,
+.gsc-reactions,
+.gsc-comment-reactions,
+.gsc-reply-reactions,
+.gsc-comment-box-bottom > button { display: none !important; }
+
+.gsc-main { gap: 0; }
+.gsc-comments { gap: 12px; }
+.gsc-comment-box:not(.gsc-comment-box-is-reply) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+}
+.gsc-comment-box-main { margin: 0; }
+.gsc-comment-box-write { border-radius: 12px; }
+.gsc-comment-box-write:focus-within { box-shadow: 0 0 0 3px #fce7ee; }
+.gsc-comment-box-textarea {
+  min-height: 58px;
+  height: 58px;
+  padding: 10px 12px;
+  border: 1px solid #f0dce3;
+  border-radius: 12px;
+  background: #fffafb;
+  font-size: 15px;
+  line-height: 1.7;
+  resize: vertical;
+}
+.gsc-comment-box-textarea:focus { border-color: #da8ca4; background: #fff; }
+.gsc-comment-box-textarea:disabled { background: #fffafb; opacity: 1; }
+.gsc-comment-box-textarea::placeholder { color: #a38e97; }
+.gsc-comment-box-bottom { margin: 0 0 3px; }
+.gsc-comment-box-buttons .btn { border-radius: 9px; min-height: 36px; padding: 7px 12px; box-shadow: none; font-weight: 500; }
+.gsc-timeline { gap: 0; }
+.gsc-comment > div {
+  display: grid;
+  grid-template-columns: 42px max-content minmax(0, 1fr);
+  border: 0;
+  border-top: 1px solid #f6e9ee;
+  border-radius: 0;
+  padding: 10px 0 8px;
+}
+.gsc-comment > div > .gsc-comment-header { grid-column: 1 / -1; grid-row: 1; }
+.gsc-comment > div > .gsc-comment-content { grid-column: 1 / -1; grid-row: 2; }
+.gsc-comment > div > .gsc-replies { grid-column: 1 / -1; grid-row: 4; }
+.gsc-comment > div > .gsc-comment-box-is-reply { grid-column: 1 / -1; grid-row: 5; }
+.gsc-comment-header { padding: 0; gap: 8px; }
+.gsc-comment-author { flex-wrap: wrap; gap: 8px 12px; }
+.gsc-comment-author-avatar { gap: 2px; }
+.gsc-comment-author-avatar img { width: 32px; height: 32px; border-radius: 50%; }
+.gsc-comment-header time { font-size: 12px; color: #9c8e95; }
+.gsc-comment-content { padding: 5px 0 4px 42px; font-size: 15px; line-height: 1.65; }
+.gsc-comment-content > :last-child, .gsc-reply-content > :last-child { margin-bottom: 0; }
+.gsc-comment-footer { grid-column: 3; grid-row: 3; margin: 0; padding-left: 10px; align-items: center; justify-content: flex-start; }
+.gsc-replies { margin-left: 42px; border: 0; border-radius: 10px; background: #fff8fa; }
+.gsc-reply-box { grid-column: 2; grid-row: 3; padding: 0; background: transparent; border: 0; }
+.gsc-reply-box > button { width: auto; min-height: 28px; padding: 2px 0; border: 0; background: transparent; color: #cb5177; }
+.gsc-comment-box-is-reply { padding: 8px 0 0 42px; }
+.gsc-comment-box-is-reply .gsc-comment-box-bottom { margin-top: 6px; }
+.gsc-reply { padding: 10px 12px 6px; }
+.gsc-pagination-button { border-radius: 10px; }
+
+@media (max-width: 480px) {
+  .gsc-comment > div { grid-template-columns: 0 max-content minmax(0, 1fr); }
+  .gsc-comment-content { padding-left: 0; }
+  .gsc-replies { margin-left: 12px; }
+  .gsc-comment-author { gap: 6px 10px; }
+  .gsc-reply-box, .gsc-comment-box-is-reply { padding-left: 0; }
+  .gsc-comment-box:not(.gsc-comment-box-is-reply):has(.gsc-comment-box-buttons a) { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}

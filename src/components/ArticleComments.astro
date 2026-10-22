@@ -1,0 +1,147 @@
+---
+import config from '../data/giscus.json';
+
+interface Props { slug: string }
+const { slug } = Astro.props;
+const configured = Boolean(config.repoId && config.categoryId);
+---
+
+<section class="article-comments" aria-label="文章评论" data-article-comments
+  data-repo={config.repo} data-repo-id={config.repoId}
+  data-category={config.category} data-category-id={config.categoryId}
+  data-preview-theme={config.previewTheme}
+  data-term={`blog/${slug}`}>
+  <button class="comments-toggle" type="button" aria-expanded="false" aria-controls="article-comments-panel">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+      <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H5l-3 2V11.5a9.5 9.5 0 0 1 19 0Z" />
+    </svg>
+    <span data-toggle-label>评论</span>
+    <svg class="comments-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+  </button>
+  <div id="article-comments-panel" hidden>
+    <p class="comments-status" role="status" aria-live="polite" data-comments-status>{configured ? '' : '评论区正在准备中，请稍后再来。'}</p>
+    <button class="comments-retry" type="button" hidden>重新加载评论</button>
+    <div class="giscus"></div>
+    <a class="comments-link" href={`https://github.com/${config.repo}/discussions`} target="_blank" rel="noopener noreferrer" hidden>在 GitHub 查看讨论 ↗</a>
+  </div>
+  <noscript><p class="comments-note">启用 JavaScript 后可以展开评论，或<a href={`https://github.com/${config.repo}/discussions`}>前往 GitHub 讨论区</a>。</p></noscript>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-article-comments]');
+  if (root) {
+    const toggle = root.querySelector<HTMLButtonElement>('.comments-toggle')!;
+    const label = root.querySelector<HTMLElement>('[data-toggle-label]')!;
+    const panel = root.querySelector<HTMLElement>('#article-comments-panel')!;
+    const status = root.querySelector<HTMLElement>('[data-comments-status]')!;
+    const retry = root.querySelector<HTMLButtonElement>('.comments-retry')!;
+    const container = root.querySelector<HTMLElement>('.giscus')!;
+    const fallback = root.querySelector<HTMLAnchorElement>('.comments-link')!;
+    let started = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const showError = () => {
+      clearTimeout(timer);
+      status.textContent = '评论暂时未能加载，请稍后重试，或前往 GitHub 查看讨论。';
+      status.hidden = false;
+      retry.hidden = false;
+      fallback.hidden = false;
+    };
+
+    const load = () => {
+      if (!root.dataset.categoryId) return;
+      started = true;
+      clearTimeout(timer);
+      retry.hidden = true;
+      fallback.hidden = true;
+      status.hidden = false;
+      status.textContent = '正在加载评论…';
+      timer = setTimeout(showError, 20000);
+      const existingFrame = container.querySelector('iframe');
+      if (existingFrame) {
+        existingFrame.src = existingFrame.src;
+        return;
+      }
+      container.replaceChildren();
+      const script = document.createElement('script');
+      script.src = 'https://giscus.app/client.js';
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      const attributes = {
+        repo: root.dataset.repo!, 'repo-id': root.dataset.repoId!,
+        category: root.dataset.category!, 'category-id': root.dataset.categoryId!,
+        mapping: 'specific', term: root.dataset.term!, strict: '1',
+        'reactions-enabled': '0', 'emit-metadata': '1',
+        'input-position': 'top',
+        theme: ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+          ? root.dataset.previewTheme!
+          : new URL('/styles/giscus.css', window.location.origin).href,
+        lang: 'zh-CN', loading: 'eager',
+      };
+      for (const [key, value] of Object.entries(attributes)) script.setAttribute(`data-${key}`, value);
+      script.addEventListener('error', showError, { once: true });
+      container.append(script);
+    };
+
+    window.addEventListener('message', (event) => {
+      const frame = container.querySelector('iframe');
+      if (event.origin !== 'https://giscus.app' || !frame || event.source !== frame.contentWindow) return;
+      const message = event.data?.giscus;
+      if (!message || typeof message !== 'object') return;
+      // A new article has no discussion until its first comment; giscus renders
+      // the empty composer normally for that case.
+      if (message.error && !String(message.error).includes('Discussion not found')) {
+        showError();
+      } else if ('resizeHeight' in message || 'discussion' in message) {
+        clearTimeout(timer);
+        status.hidden = true;
+        retry.hidden = true;
+        fallback.hidden = true;
+      }
+    });
+
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(expanded));
+      panel.hidden = !expanded;
+      label.textContent = expanded ? '收起评论' : '评论';
+      if (expanded && !started) load();
+    });
+    retry.addEventListener('click', load);
+    // OAuth returns to a fresh page: reopen the composer so the login flow
+    // can finish even though comments normally start collapsed.
+    if (new URLSearchParams(window.location.search).has('giscus')) toggle.click();
+  }
+</script>
+
+<style>
+  .article-comments {
+    padding: 12px clamp(24px, 6vw, 68px) 18px;
+    border-top: 1px solid var(--sakura-line);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: normal;
+  }
+  .comments-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 8px 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--article-muted);
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .comments-toggle:hover, .comments-toggle[aria-expanded='true'] { color: var(--sakura-deep); }
+  .comments-toggle:focus-visible, .comments-retry:focus-visible, .comments-link:focus-visible { outline: 2px solid var(--sakura-deep); outline-offset: 4px; }
+  .comments-toggle[aria-expanded='true'] .comments-chevron { transform: rotate(180deg); }
+  #article-comments-panel { padding-top: 6px; }
+  .comments-note, .comments-status { margin: 18px 0; color: var(--article-muted); font-size: 14px; line-height: 1.8; }
+  .comments-retry { padding: 8px 12px; margin-bottom: 16px; border: 1px solid var(--sakura-line); border-radius: 8px; background: white; color: var(--sakura-deep); cursor: pointer; font: inherit; font-size: 14px; }
+  .comments-link { display: inline-block; margin-top: 12px; color: var(--article-muted); font-size: 13px; text-decoration: none; }
+  .comments-link:hover { color: var(--sakura-deep); text-decoration: underline; }
+  [hidden] { display: none !important; }
+</style>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleToc from '../../components/ArticleToc.astro';
+import ArticleComments from '../../components/ArticleComments.astro';
 import { categoryLabels, formatDate } from '../../lib/writing.js';
 import '../../styles/article-sakura.css';
 import { basename } from 'node:path';
@@ -33,6 +34,7 @@ const headingStartDepth = hasToc
 
 <BaseLayout title={`${post.frontmatter.title} | Blog`} back articleEffects>
   <Fragment slot="head">
+    <meta name="giscus:backlink" content={`https://zhanghao0806.github.io/blog/${encodeURIComponent(post.frontmatter.slug)}/`} />
     <link rel="preload" href={font.regular} as="font" type="font/woff2" crossorigin="anonymous" />
     <link rel="preload" href={font.bold} as="font" type="font/woff2" crossorigin="anonymous" />
     <style is:inline set:html={fontFaces} />
@@ -53,6 +55,7 @@ const headingStartDepth = hasToc
       <div class="article-prose">
         <Content />
       </div>
+      <ArticleComments slug={String(post.frontmatter.slug)} />
     </article>
   </div>
 </BaseLayout>
