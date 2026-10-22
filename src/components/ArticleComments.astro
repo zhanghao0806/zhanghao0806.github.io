@@ -39,6 +39,19 @@ const configured = Boolean(config.repoId && config.categoryId);
     const fallback = root.querySelector<HTMLAnchorElement>('.comments-link')!;
     let started = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let commentCount: number | undefined;
+
+    const updateLabel = () => {
+      label.textContent = toggle.getAttribute('aria-expanded') === 'true'
+        ? '收起评论'
+        : commentCount === undefined ? '评论' : `${commentCount} 条评论`;
+    };
+
+    const updateCount = (value: unknown) => {
+      if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) return;
+      commentCount = value;
+      updateLabel();
+    };
 
     const showError = () => {
       clearTimeout(timer);
@@ -88,10 +101,15 @@ const configured = Boolean(config.repoId && config.categoryId);
       if (event.origin !== 'https://giscus.app' || !frame || event.source !== frame.contentWindow) return;
       const message = event.data?.giscus;
       if (!message || typeof message !== 'object') return;
+      updateCount(message.discussion?.totalCommentCount);
       // A new article has no discussion until its first comment; giscus renders
       // the empty composer normally for that case.
       if (message.error && !String(message.error).includes('Discussion not found')) {
         showError();
+      } else if (String(message.error ?? '').includes('Discussion not found')) {
+        // No discussion exists until the first comment. Other failures must
+        // never be presented as zero comments.
+        if (commentCount === undefined) updateCount(0);
       } else if ('resizeHeight' in message || 'discussion' in message) {
         clearTimeout(timer);
         status.hidden = true;
@@ -104,13 +122,26 @@ const configured = Boolean(config.repoId && config.categoryId);
       const expanded = toggle.getAttribute('aria-expanded') !== 'true';
       toggle.setAttribute('aria-expanded', String(expanded));
       panel.hidden = !expanded;
-      label.textContent = expanded ? '收起评论' : '评论';
+      updateLabel();
       if (expanded && !started) load();
     });
     retry.addEventListener('click', load);
     // OAuth returns to a fresh page: reopen the composer so the login flow
     // can finish even though comments normally start collapsed.
     if (new URLSearchParams(window.location.search).has('giscus')) toggle.click();
+
+    // Counts arrive via iframe metadata; preload near the button without
+    // opening the comments panel or loading giscus at the top of a long article.
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        if (!started) load();
+      }, { rootMargin: '300px' });
+      observer.observe(toggle);
+    } else if (!started) {
+      load();
+    }
   }
 </script>
 
