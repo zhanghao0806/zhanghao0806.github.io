@@ -1,5 +1,5 @@
 ---
-title: diffusion-model
+title: Diffusion-Model
 slug: diffusion-model-learning
 date: 2026-06-09
 category: note
