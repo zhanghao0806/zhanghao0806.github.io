@@ -11,16 +11,46 @@ ACTIONS_URL="https://github.com/zhanghao0806/zhanghao0806.github.io/actions/work
 SITE_URL="https://zhanghao0806.github.io/"
 LOCK_DIR=""
 
+close_terminal_window() {
+  [[ "${TERM_PROGRAM:-}" == "Apple_Terminal" ]] || return 0
+  local terminal_tty
+  terminal_tty="$(tty)" || return 1
+  # Match this script's terminal, rather than whichever window is frontmost.
+  osascript - "$terminal_tty" <<'APPLESCRIPT'
+on run argv
+  set terminalTTY to item 1 of argv
+  tell application "Terminal"
+    repeat with terminalWindow in windows
+      repeat with terminalTab in tabs of terminalWindow
+        if tty of terminalTab is terminalTTY then
+          if (count of tabs of terminalWindow) is not 1 then
+            error "窗口中还有其他标签页，请手动关闭当前标签页。"
+          end if
+          close terminalWindow saving no
+          return
+        end if
+      end repeat
+    end repeat
+    error "未找到运行发布脚本的终端窗口。"
+  end tell
+end run
+APPLESCRIPT
+}
+
 finish() {
   local result=$?
   trap - EXIT
   if [[ -n "$LOCK_DIR" ]]; then rmdir "$LOCK_DIR" 2>/dev/null || true; fi
   if [[ "$result" -ne 0 ]]; then
     printf '\n发布未完成，请查看上面的错误。修复后可以重新运行；已有本地提交会保留。\n'
-  fi
-  if [[ -t 0 && -t 1 ]]; then
-    printf '\n按回车关闭窗口……'
-    read -r _ || true
+    if [[ -t 0 && -t 1 ]]; then
+      printf '\n按回车退出脚本，或保留窗口查看错误……'
+      read -r _ || true
+    fi
+  elif [[ -t 0 && -t 1 ]]; then
+    if ! close_terminal_window; then
+      printf '\n发布已成功，但无法自动关闭窗口，请手动关闭。\n'
+    fi
   fi
   exit "$result"
 }

@@ -62,8 +62,8 @@ https://zhanghao0806.github.io/blog/qnn-note-02/
 `category` 只能使用下面三种之一：
 
 ```text
-experiment      做过的项目
-note            一些笔记
+experiment      项目
+note            笔记
 reflections     杂思录
 ```
 
@@ -165,18 +165,18 @@ src/pages/index.astro
 
 ### 首页“文章”卡片是怎么选出来的
 
-首页“文章”区域使用 `featuredPosts`，先展示 `featuredSlugs` 指定的文章，再用最新文章补足 3 篇。当前配置为：
+首页“文章”区域与首页项目卡片一样，由手动配置决定展示内容和顺序。打开 `src/pages/index.astro`，修改顶部的 `featuredSlugs` 数组，填写希望展示的三篇文章的 `slug`。当前配置为：
 
 ```js
-const featuredSlugs = ['llm01'];
+const featuredSlugs = ['common-commands', 'mathematical-literacy', 'Astra-Qwen'];
 ```
 
-因此，当前会先显示 `llm01`，再按日期选取另外最新的 2 篇。这里读取全部分类，不限于项目文章或笔记。
+对应“常用命令”“数学常识”“Astra 改 Qwen”，按数组顺序显示。这里可以选择全部分类中的文章，不限于项目文章或笔记。标题、日期和链接自动读取对应 Markdown，无需重复填写。
 
 要指定其他文章，把对应的 `slug` 写进数组，例如：
 
 ```js
-const featuredSlugs = ['llm01', '2026-10-20', '2026-10-19-matrix'];
+const featuredSlugs = ['qnn1', '2026-10-20', '2026-10-19-matrix'];
 ```
 
 这些值必须与 Markdown 开头的 `slug` 完全一致，注意大小写；不要填写文件名、文章标题或完整网址。例如：
@@ -192,11 +192,11 @@ category: note
 
 具体显示规则：
 
-- 指定文章按 `featuredSlugs` 中的顺序排在前面。
-- 指定文章不足 3 篇时，从其余文章中按 `date` 从新到旧补齐；补充部分会排除已经指定的 slug。
-- 空数组 `[]` 表示自动展示最新 3 篇；文章总数不足 3 篇时展示现有文章。
-- 不存在的 slug 会被忽略，仍用最新文章补位。重复 slug 不会自动去重，因此不要重复填写。
-- 指定超过 3 篇有效文章时会全部展示，当前代码没有把指定列表截断为 3 篇。
+- 仅展示 `featuredSlugs` 指定的文章，按数组顺序显示，最多 3 篇；不按日期重新排序。
+- 不足 3 篇时只展示已指定的有效文章，不再自动用最新文章补位；空数组 `[]` 表示不展示文章卡片。
+- 不存在的 slug 会被忽略；重复 slug 自动去重，保留第一次出现的位置。
+- 超过 3 篇时，只显示去重后最前面的 3 篇有效文章。
+- 新增文章或修改日期不会自动替换这里的文章；要更换展示内容，直接替换数组中的 slug，要调整顺序就移动对应项。
 
 ### 最新文章模块怎么更新
 
@@ -221,7 +221,7 @@ date: 2026-06-04
 ### 新增文章到页面的完整流程
 
 1. 在 `src/content/blog/` 直接新建 `.md`，填写 `title`、唯一的字符串 `slug`、`date` 和合法的 `category`，然后写正文。
-2. 构建时，首页读取这些 Markdown 模块，用 `src/lib/writing.js` 中的 `sortPostsByDateDesc` 按日期降序排序，再分别生成“文章”卡片和“最新文章”列表。
+2. 构建时，首页读取这些 Markdown 模块：“文章”卡片按 `featuredSlugs` 手动选取并排列；“最新文章”列表使用 `src/lib/writing.js` 中的 `sortPostsByDateDesc` 按日期降序选取最新 5 篇。
 3. `src/pages/blog/index.astro` 根据 `category` 把文章放进对应栏目；`src/pages/blog/[slug].astro` 根据 `slug` 生成 `/blog/slug/` 详情页。
 4. 如需让文章固定出现在首页，修改 `featuredSlugs`；如需展示项目简介和仓库入口，另行维护 `featuredProjects`，并按需要同步项目页的 `projects`。
 5. 运行 `npm run dev`，检查首页、文章目录、文章详情及项目卡片链接；发布前运行 `npm run build`，再按下方发布流程推送。
@@ -295,7 +295,7 @@ src/pages/projects.astro
   summary: '一句话简介。',
   tags: ['标签1', '标签2'],
   links: [
-    { label: '做过的项目', href: '/blog/你的文章slug/' },
+    { label: '文章', href: '/blog/你的文章slug/' },
     { label: 'GitHub', href: 'https://github.com/zhanghao0806/你的项目仓库' },
   ],
 }

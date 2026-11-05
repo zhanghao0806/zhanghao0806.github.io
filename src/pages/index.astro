@@ -6,16 +6,12 @@ import { formatDate, sortPostsByDateDesc } from '../lib/writing.js';
 const postModules = import.meta.glob('../content/blog/*.md', { eager: true });
 const posts = sortPostsByDateDesc(Object.values(postModules));
 const latestPosts = posts.slice(0, 5);
-const featuredSlugs = ['llm01'];
-const pinnedPosts = featuredSlugs
+// 首页精选文章：按此顺序展示，最多三篇，不自动补入最新文章。
+const featuredSlugs = ['quantum-knowledge', 'Astra-Qwen','26-05-04'];
+const featuredPosts = [...new Set(featuredSlugs)]
   .map((slug) => posts.find((post) => post.frontmatter.slug === slug))
-  .filter(Boolean);
-const featuredPosts = [
-  ...pinnedPosts,
-  ...posts
-    .filter((post) => !featuredSlugs.includes(post.frontmatter.slug))
-    .slice(0, Math.max(0, 3 - pinnedPosts.length)),
-];
+  .filter(Boolean)
+  .slice(0, 3);
 const featuredProjects = [
   {
     title: '个人主页与写作系统',
@@ -36,6 +32,17 @@ const featuredProjects = [
       { label: '文章', href: 'https://zhanghao0806.github.io/blog/2026-10-20/' },
     ],
   },
+
+  {
+    title: 'PyCG论文复现',
+    summary: '复现论文 PyCG，一种静态分析 Python 程序调用图的方法',
+    tags: ['静态分析', '调用图'],
+    links: [
+      { label: 'GitHub', href: 'https://github.com/zhanghao0806/PyCG-reproduction' },
+      { label: '文章', href: 'https://zhanghao0806.github.io/blog/2026-10-19-paper/' },
+    ],
+  },
+
 ];
 ---
 
