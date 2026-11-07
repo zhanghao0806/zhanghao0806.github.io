@@ -15,26 +15,44 @@ close_terminal_window() {
   [[ "${TERM_PROGRAM:-}" == "Apple_Terminal" ]] || return 0
   local terminal_tty
   terminal_tty="$(tty)" || return 1
-  # Match this script's terminal, rather than whichever window is frontmost.
-  osascript - "$terminal_tty" <<'APPLESCRIPT'
+  # Node's detached child has its own session and no controlling terminal.
+  # Wait for the publishing shell to finish before asking Terminal to close.
+  node --input-type=module - "$terminal_tty" <<'JAVASCRIPT'
+import { spawn } from 'node:child_process';
+const script = `
 on run argv
   set terminalTTY to item 1 of argv
-  tell application "Terminal"
-    repeat with terminalWindow in windows
-      repeat with terminalTab in tabs of terminalWindow
-        if tty of terminalTab is terminalTTY then
-          if (count of tabs of terminalWindow) is not 1 then
-            error "窗口中还有其他标签页，请手动关闭当前标签页。"
+  repeat 100
+    tell application "Terminal"
+      set foundTerminal to false
+      repeat with terminalWindow in windows
+        repeat with terminalTab in tabs of terminalWindow
+          if tty of terminalTab is terminalTTY then
+            set foundTerminal to true
+            if (count of tabs of terminalWindow) is not 1 then return
+            if (count of processes of terminalTab) is 0 then
+              close terminalWindow saving no
+              return
+            end if
           end if
-          close terminalWindow saving no
-          return
-        end if
+        end repeat
       end repeat
-    end repeat
-    error "未找到运行发布脚本的终端窗口。"
-  end tell
+      if not foundTerminal then return
+    end tell
+    delay 0.1
+  end repeat
 end run
-APPLESCRIPT
+`;
+const child = spawn('/usr/bin/osascript', ['-e', script, process.argv[2]], {
+  detached: true,
+  stdio: 'ignore',
+});
+child.on('error', (error) => {
+  console.error(`无法启动自动关闭程序：${error.message}`);
+  process.exitCode = 1;
+});
+child.unref();
+JAVASCRIPT
 }
 
 finish() {
