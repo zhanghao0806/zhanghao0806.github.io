@@ -2,7 +2,7 @@
 title: Astra 改 Qwen
 slug: Astra-Qwen
 date: 2026-11-04
-category: note
+category: paper
 ---
 
 

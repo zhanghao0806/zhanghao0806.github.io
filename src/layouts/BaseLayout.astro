@@ -107,8 +107,10 @@ const isActive = (href) => {
     color: var(--accent-strong);
   }
 
+  /* Keep navigation and page content on the same outer edges. */
   .site-header,
   main {
+    box-sizing: border-box;
     width: min(100% - 40px, var(--site-shell-max-width));
     margin: 0 auto;
   }

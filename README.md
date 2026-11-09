@@ -59,17 +59,19 @@ https://zhanghao0806.github.io/blog/qnn-note-02/
 
 当前读取规则是 `src/content/blog/*.md`，因此文章应直接放在这个目录下，放进子目录不会被自动读取。当前没有草稿或定时发布过滤：放入此目录的文章会参与构建，未来日期也会参与排序。
 
-`category` 只能使用下面三种之一：
+`category` 只能使用下面五种之一：
 
 ```text
-experiment      项目
+experiment      实验
+paper           论文
 note            笔记
-reflections     杂思录
+reflections     杂思
+life            生活
 ```
 
-“杂思录”统一收录学习回顾、生活随想、阅读与观察。旧的 `/notes/` 入口同步展示合并后的杂思录文章。修改分类时保留文章的 `slug`，已有文章链接仍然可用。
+原“项目”更名为“实验”，原“杂思录”更名为“杂思”。旧的 `/notes/` 入口同步展示杂思文章。“论文阅读-强化学习发现更快的矩阵乘法算法”和“Astra 改 Qwen”归入论文；“宁波生活”“电影&音乐”和“Diary”归入生活，其余文章保持原分类键。修改分类时保留文章的 `slug`，已有文章链接仍然可用。
 
-文章目录会自动按 `category` 分类，并按 `date` 从新到旧展示各分类的全部文章。新增文章会自动出现在对应栏目，直接滚动页面即可浏览。
+文章目录默认显示全部文章，左侧按 `category` 筛选，右侧按 `date` 从新到旧单列展示。新增文章和分类数量自动更新。
 
 ### 正文换行、空格和空行
 
@@ -333,9 +335,9 @@ project:
 
 ## 文章目录和分类浏览
 
-`src/pages/blog/index.astro` 按三个专栏显示全部文章，按日期从新到旧排序。桌面端为三栏，窄屏自动切换为两栏或单栏，通过浏览器页面滚动即可看到最后一篇；没有栏目内部滚动或“查看全部”按钮。
+`src/pages/blog/index.astro` 与分类页共用 `src/components/WritingArchive.astro`：桌面端左侧是 macOS 风格的半透明分类侧栏，右侧是单列文章列表，标题靠左、日期靠右。手机端分类导航换行到列表上方。点击分类进入对应归档，无需客户端 JavaScript。分类名称和顺序由 `src/lib/writing.js` 统一管理。
 
-`src/pages/blog/[category]/index.astro` 提供单独的分类归档，使用 `src/components/WritingArchive.astro` 显示该分类的完整列表。旧的分类分页链接由 `src/pages/blog/[category]/[page].astro` 跳转到完整分类页，兼容已有链接。
+`src/pages/blog/[category]/index.astro` 提供单独的分类归档，使用 `src/components/WritingArchive.astro` 显示该分类的完整列表。旧的分类分页链接由 `src/pages/blog/[category]/[page].astro` 跳转到完整分类页，兼容已有链接，包括分类迁移前的分页地址。
 
 持续往 `src/content/blog/` 添加 Markdown 文章即可，构建时会自动更新目录与文章数量。分类和日期格式在 `src/lib/writing.js` 维护，无需配置每页篇数。
 

@@ -8,7 +8,9 @@ export async function getStaticPaths() {
 
   return CATEGORIES.flatMap((category) => {
     const count = allPosts.filter((post) => post.frontmatter.category === category.key).length;
-    const totalPages = Math.ceil(count / legacyPageSize);
+    // Retain pagination URLs published before category migration.
+    const legacyCounts = { experiment: 6, note: 14, reflections: 11 };
+    const totalPages = Math.ceil(Math.max(count, legacyCounts[category.key] || 0) / legacyPageSize);
 
     return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, index) => ({
       params: { category: category.key, page: String(index + 2) },

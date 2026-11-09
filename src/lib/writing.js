@@ -1,7 +1,11 @@
 export const CATEGORIES = [
   {
     key: 'experiment',
-    title: '项目',
+    title: '实验',
+  },
+  {
+    key: 'paper',
+    title: '论文',
   },
   {
     key: 'note',
@@ -9,7 +13,11 @@ export const CATEGORIES = [
   },
   {
     key: 'reflections',
-    title: '杂思录',
+    title: '杂思',
+  },
+  {
+    key: 'life',
+    title: '生活',
   },
 ];
 
