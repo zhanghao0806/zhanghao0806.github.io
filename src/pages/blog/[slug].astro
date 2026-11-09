@@ -42,6 +42,7 @@ const headingStartDepth = hasToc
   <div
     class:list={['article-reading-layout', { 'has-toc': hasToc }]}
     data-heading-start-depth={headingStartDepth}
+    data-archive-category={categoryLabels[post.frontmatter.category] ? post.frontmatter.category : undefined}
   >
     {hasToc && <ArticleToc headings={headings} />}
 
@@ -59,3 +60,14 @@ const headingStartDepth = hasToc
     </article>
   </div>
 </BaseLayout>
+
+<script>
+  const article = document.querySelector<HTMLElement>('.article-reading-layout');
+  const backLink = document.querySelector<HTMLAnchorElement>('.nav-back');
+  const category = article?.dataset.archiveCategory;
+  const source = new URLSearchParams(window.location.search).get('from');
+
+  if (backLink && category && source === category) {
+    backLink.href = `/blog/${encodeURIComponent(category)}/`;
+  }
+</script>
