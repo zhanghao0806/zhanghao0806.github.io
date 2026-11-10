@@ -71,7 +71,7 @@ life            生活
 
 原“项目”更名为“实验”，原“杂思录”更名为“杂思”。旧的 `/notes/` 入口同步展示杂思文章。“论文阅读-强化学习发现更快的矩阵乘法算法”和“Astra 改 Qwen”归入论文；“宁波生活”“电影&音乐”和“Diary”归入生活，其余文章保持原分类键。修改分类时保留文章的 `slug`，已有文章链接仍然可用。
 
-文章目录默认显示全部文章，左侧按 `category` 筛选，右侧按 `date` 从新到旧单列展示。新增文章和分类数量自动更新。
+文章目录默认显示全部文章，顶部按 `category` 筛选，下方按 `date` 从新到旧单列展示。新增文章和分类数量自动更新。
 
 ### 正文换行、空格和空行
 
@@ -335,7 +335,7 @@ project:
 
 ## 文章目录和分类浏览
 
-`src/pages/blog/index.astro` 与分类页共用 `src/components/WritingArchive.astro`：桌面端左侧是 macOS 风格的半透明分类侧栏，右侧是单列文章列表，标题靠左、日期靠右。手机端分类导航换行到列表上方。点击分类进入对应归档，无需客户端 JavaScript。分类名称和顺序由 `src/lib/writing.js` 统一管理。
+`src/pages/blog/index.astro` 与分类页共用 `src/components/WritingArchive.astro`：顶部为横向文字分类导航，下方是单列文章列表，标题靠左、日期靠右。分类导航和文章列表共用一张浅色圆角卡片，卡片与顶部主导航等宽。窄屏下分类导航自动换行。启用 JavaScript 时，点击分类会在当前页面筛选文章并更新地址栏，猫咪保留当前状态；支持浏览器前进、后退，文章返回按钮也会回到选中的分类。禁用 JavaScript 或在新标签页打开时，使用对应的静态分类页。分类名称和顺序由 `src/lib/writing.js` 统一管理。
 
 `src/pages/blog/[category]/index.astro` 提供单独的分类归档，使用 `src/components/WritingArchive.astro` 显示该分类的完整列表。旧的分类分页链接由 `src/pages/blog/[category]/[page].astro` 跳转到完整分类页，兼容已有链接，包括分类迁移前的分页地址。
 
