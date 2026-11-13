@@ -397,7 +397,7 @@ Markdown 里这样引用：
 
 1. 在仓库外整理照片。在项目根目录运行 `npm run prepare:travel-photos -- "/你的照片文件夹"`，脚本会在该目录生成 `travel-web/`。它支持 JPEG、PNG、WebP 和 macOS 上的 HEIC/HEIF，会校正方向、去掉 EXIF 等元数据，导出长边最多 2400 px、质量 90 的 WebP。已有展示图可以直接上传。
 2. 在 ImageKit 的 **Media Library** 为这趟旅行建一个文件夹，批量上传展示图。保持图片已发布、公开可访问，然后右键选 **Copy URL**。如果之后移动或重命名照片，请同步修改文章里的地址。 [ImageKit 上传说明](https://imagekit.io/docs/dam/upload-assets)
-3. 在 Typora 或常用编辑器里复制 [示例文章](src/content/travel/under-the-glass-roof.md)，把新文件存到 `src/content/travel/`。文件名决定网址，例如 `hangzhou.md` 对应 `/travel/hangzhou/`。填写 `title`、`date`，将 ImageKit 直链插在对应段落之间。图片上下各留一空行，链接末尾双引号里的文字会显示为图注。
+3. 在 Typora 或常用编辑器里复制 [示例文章](src/content/travel/under-the-glass-roof.md)，把新文件存到 `src/content/travel/`。文件名决定网址，例如 `hangzhou.md` 对应 `/travel/hangzhou/`。填写 `title`、`date`，将 ImageKit 直链插在对应段落之间。图片上下各留一空行，地址后用一个空格和英文半角双引号 `"` 写图注。中文弯引号 `“ ”` 会导致整条图片语法被当成正文。
 4. 打开 [本地旅图列表](http://127.0.0.1:4321/travel/)，检查新文章的封面、正文和图注，再按上面的流程发布。如果开发服务已经在运行，新增文章或修改文字后可运行 `npm run font:subset` 或重启开发服务，更新该篇宋体。
 
 ```md
