@@ -10,10 +10,13 @@ const {
   articleEffects = false,
 } = Astro.props;
 
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+
 const navItems = [
   { href: '/', label: '首页' },
   { href: '/projects/', label: '项目' },
   { href: '/blog/', label: '文章' },
+  { href: '/travel/', label: '旅图' },
 ];
 
 const isActive = (href) => {
@@ -28,6 +31,7 @@ const isActive = (href) => {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl.href} />
     <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>

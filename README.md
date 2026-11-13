@@ -1,6 +1,6 @@
 # 张浩的个人主页
 
-这是一个基于 Astro 的个人主页项目，用来维护个人介绍、项目展示和长期写作内容。
+这是一个基于 Astro 的个人主页项目，包含个人介绍、项目展示、博客和旅图。
 
 网站本地地址：
 
@@ -11,20 +11,30 @@ http://127.0.0.1:4321/
 线上地址：
 
 ```text
-https://zhanghao0806.github.io/
+https://zhanghao0806.com/
 ```
+
+## 域名与托管
+
+| 用途 | 当前配置 |
+| --- | --- |
+| 域名注册与续费 | 腾讯云（DNSPod） |
+| 权威 DNS | Cloudflare，NS 为 `candy.ns.cloudflare.com` 和 `donovan.ns.cloudflare.com` |
+| 网站托管 | GitHub Pages，自定义域名 `zhanghao0806.com` |
+| DNS 解析 | 根域名的 A 和 AAAA 记录指向 GitHub Pages，`www` 的 CNAME 指向 `zhanghao0806.github.io`，访问时跳转到主域名 |
+| 网站部署 | 推送 `main` 后，GitHub Actions 构建并发布 `dist/` |
+| 旅图照片 | ImageKit，直链前缀 `https://ik.imagekit.io/zhanghao/` |
+| 博客评论 | Giscus，使用 [`zhanghao0806/blog-comments`](https://github.com/zhanghao0806/blog-comments/discussions) 的 GitHub Discussions |
+
+域名解析在 Cloudflare 控制台维护，站点自定义域名和 HTTPS 开关在仓库 **Settings → Pages**。Astro 的 `site` 配置生成 canonical 和博客评论回链。 [GitHub Pages 自定义域名](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
 
 ## 一键发布网站（macOS）
 
-脚本位置：
-
-```text
-/Users/zhanghao/code/personal-homepage/publish.command
-```
+在 `main` 分支运行 `./publish.command`，也可以在 Finder 双击 [publish.command](publish.command)。脚本会检查远程更新、构建网站、提交工作区的全部改动，并推送到 `personal-homepage/main`。运行前可用 `git status --short` 查看会发布哪些文件。仅发布部分文件时，按 [发布到 GitHub Pages](#发布到-github-pages) 的手动流程操作。
 
 ## 写文章格式、放哪里
 
-所有文章都放在：
+博客文章放在：
 
 ```text
 src/content/blog/
@@ -41,7 +51,7 @@ src/content/blog/qnn-note-02.md
 ```md
 ---
 title: 文章标题
-slug: qnn-note-02
+slug: 'qnn-note-02'
 date: 2026-06-04
 category: note
 ---
@@ -49,10 +59,21 @@ category: note
 正文从这里开始写。
 ```
 
-`slug` 是文章网址的一部分，例如：
+文首两行 `---` 之间是文章元数据，每个字段独占一行。
+
+| 字段 | 用途 |
+| --- | --- |
+| `title` | 文章页、归档和首页卡片显示的标题 |
+| `slug` | 文章网址中唯一的路径名，也用于精选文章和评论匹配 |
+| `date` | 显示日期和排序，使用 `YYYY-MM-DD` |
+| `category` | 文章顶部显示的分类标签，也用于归档筛选 |
+
+文章大标题由 `title` 生成。正文可以用 `#` 到 `######` 写各级小标题，例如用 `## 背景` 和 `### 实验设置`，文章目录会根据正文标题生成。文章分类用 `category`。下文项目卡片里的 `tags` 是项目卡片显示的标签。
+
+`slug` 决定文章网址。上面这篇发布后的地址是
 
 ```text
-https://zhanghao0806.github.io/blog/qnn-note-02/
+https://zhanghao0806.com/blog/qnn-note-02/
 ```
 
 文件名用于管理源文件，网址由 frontmatter 中的 `slug` 决定，两者不必相同。每篇文章的 `slug` 必须唯一，建议统一写成带引号的字符串，例如 `slug: '2026-10-19-matrix'` 或 `slug: '20261019'`。最外层引号是 YAML 语法，不会出现在网址里；纯数字 slug 也应保留引号，避免被解析为数字。frontmatter 的每个字段单独占一行。
@@ -75,13 +96,13 @@ life            生活
 
 ### 正文换行、空格和空行
 
-所有现有文章和未来新增文章默认保留正文中的手动换行、连续空格和段落首行空格。无需为文章添加额外配置。单次换行只换行；Markdown 块之间空一行使用紧凑的 0.65em 段落间距，不再额外留出一整行高度；连续空多行时，额外空行仍各增加一行高度。加粗、标题、链接、列表、代码和公式仍按 Markdown 语法渲染。屏幕宽度不同会影响自动折行。
+博客文章默认保留正文中的手动换行、连续空格和段落首行空格。无需为文章添加额外配置。单次换行只换行；Markdown 块之间空一行使用紧凑的 0.65em 段落间距，不再额外留出一整行高度；连续空多行时，额外空行仍各增加一行高度。加粗、标题、链接、列表、代码和公式仍按 Markdown 语法渲染。屏幕宽度不同会影响自动折行。
 
 推荐使用两个全角空格表达中文段首缩进。四个普通空格或行首制表符在标准 Markdown 中可能被解析为代码块；已有代码块仍按代码显示。
 
 ### 文章字体与加载速度
 
-文章标题、正文和目录使用网站提供的统一思源宋体设计（Noto Serif SC 2.003），正常、粗体均提供网页字体，不依赖访客设备是否安装宋体。字体加载完成后，各设备使用同一套字形；屏幕和系统的抗锯齿效果仍可能略有差异。下载期间先显示备用字体，避免等待时文章不可读。
+博客的标题、正文和目录，以及旅图详情的标题、正文和图注，都使用网站提供的思源宋体（Noto Serif SC 2.003），正常、粗体均提供网页字体，不依赖访客设备是否安装宋体。字体加载完成后，各设备使用同一套字形；屏幕和系统的抗锯齿效果仍可能略有差异。下载期间先显示备用字体，避免等待时文章不可读。
 
 字体按每篇文章用字分别裁剪并压缩为 WOFF2，打开一篇只加载该篇的两种字重，并在页面头部预加载。文件名随字体内容变化，便于浏览器缓存；完整源字体只保存在 `assets/fonts/songti/`，不会发布给访客。旧文楷已移除。代码块使用系统等宽字体；数学公式保留 KaTeX 专用字体。
 
@@ -91,7 +112,7 @@ life            生活
 
 ## 文章评论（giscus）
 
-所有文章末尾都有评论按钮。滚动到按钮附近（300px 内）时后台加载 giscus，通过其元数据把收起状态的按钮更新为“2 条评论”；数量只统计主评论，不包含楼中楼回复。数据未就绪或网络失败时保留“评论”，仅服务明确报告没有讨论帖时显示“0 条评论”。点击展开后显示“收起评论”，收起后恢复数量，重新展开保留原来的评论框。giscus 没有独立可跨域读取的数量接口，因此显示数量需要预加载完整组件，但不在长文章首屏加载。顶部采用紧凑输入框和右侧提交按钮，下方评论按最新优先显示，保留原生头像、GitHub 用户名和相对时间。隐藏预览标签、排序切换、表情回应、“退出登录”按钮及“评论数／由 giscus 提供支持”标题行。隐藏退出按钮只影响界面，不更改登录状态或已发表的评论。查看无需登录，提交需登录 GitHub 并授权 giscus。
+博客文章末尾都有评论按钮。滚动到按钮附近（300px 内）时后台加载 giscus，通过其元数据把收起状态的按钮更新为“2 条评论”；数量只统计主评论，不包含楼中楼回复。数据未就绪或网络失败时保留“评论”，仅服务明确报告没有讨论帖时显示“0 条评论”。点击展开后显示“收起评论”，收起后恢复数量，重新展开保留原来的评论框。giscus 没有独立可跨域读取的数量接口，因此显示数量需要预加载完整组件，但不在长文章首屏加载。顶部采用紧凑输入框和右侧提交按钮，下方评论按最新优先显示，保留原生头像、GitHub 用户名和相对时间。隐藏预览标签、排序切换、表情回应、“退出登录”按钮及“评论数／由 giscus 提供支持”标题行。隐藏退出按钮只影响界面，不更改登录状态或已发表的评论。查看无需登录，提交需登录 GitHub 并授权 giscus。
 
 - 页面组件：`src/components/ArticleComments.astro`；按钮与加载失败提示在这里维护。
 - 自定义主题：`public/styles/giscus.css`，正式页面从本站加载；本地 HTTP 预览使用 `src/data/giscus.json` 中 `previewTheme` 指向的 HTTPS 副本（评论仓库的 `giscus.css`，通过固定提交的 jsDelivr 地址加载）。修改主题后需同步预览副本并更新提交地址；正式网站随正常构建发布即可。主题依赖 giscus 的 CSS 类名，上游调整界面时需复核。
@@ -112,7 +133,9 @@ src/pages/index.astro                  首页
 src/pages/projects.astro               项目页
 src/pages/blog/index.astro             文章目录页
 src/pages/blog/[slug].astro            文章详情页
-src/content/blog/                      所有文章 Markdown
+src/content/blog/                      博客 Markdown
+src/pages/travel/                      旅图列表和详情页
+src/content/travel/                    旅图 Markdown
 src/lib/writing.js                     写作分类、日期格式
 src/layouts/BaseLayout.astro           全站布局和样式
 public/avatar.jpg                      导航头像
@@ -123,11 +146,7 @@ public/images/cats/                    猫咪相册缩略图和大图
 
 ## 首页怎么维护
 
-首页文件在：
-
-```text
-src/pages/index.astro
-```
+首页由 [src/pages/index.astro](src/pages/index.astro) 维护。个人简介、教育经历和联系方式在页面的 `home-profile` 区块，首页精选文章和项目卡片在文件顶部配置。头像使用 `public/avatar.jpg`，全站导航在 [BaseLayout.astro](src/layouts/BaseLayout.astro) 的 `navItems`。
 
 ### 在首页添加项目卡片
 
@@ -170,10 +189,10 @@ src/pages/index.astro
 首页“文章”区域与首页项目卡片一样，由手动配置决定展示内容和顺序。打开 `src/pages/index.astro`，修改顶部的 `featuredSlugs` 数组，填写希望展示的三篇文章的 `slug`。当前配置为：
 
 ```js
-const featuredSlugs = ['common-commands', 'mathematical-literacy', 'Astra-Qwen'];
+const featuredSlugs = ['quantum-knowledge', 'Astra-Qwen', '26-05-04'];
 ```
 
-对应“常用命令”“数学常识”“Astra 改 Qwen”，按数组顺序显示。这里可以选择全部分类中的文章，不限于项目文章或笔记。标题、日期和链接自动读取对应 Markdown，无需重复填写。
+当前前两个 slug 有对应文章。第三个 `26-05-04` 找不到对应文章，因此目前只显示两篇。如果想选《宁波生活》，它的实际 slug 是 `2026-05-04`。这里可以选择全部分类中的文章，不限于项目文章或笔记。标题、日期和链接自动读取对应 Markdown，无需重复填写。
 
 要指定其他文章，把对应的 `slug` 写进数组，例如：
 
@@ -343,31 +362,27 @@ project:
 
 ## 图片放哪里
 
-文章图片建议统一放在：
+现有博客插图仍在仓库的 `public/images/`，旅图照片存放在 ImageKit。仓库图片目录如下。
 
 ```text
 public/images/
-```
-
-当前已经按文章类型建好目录：
-
-```text
-public/images/
-├─ experiment/
-├─ note/
-└─ reflections/
+├─ experiment/   实验配图
+├─ note/         笔记配图，可按文章建子目录
+├─ reflections/  杂思配图
+├─ cats/         首页猫咪相册
+└─ home/         首页图片预留目录
 ```
 
 例如图片放在：
 
 ```text
-public/images/note/qnn-circuit.png
+public/images/note/qwen3-8B.png
 ```
 
 Markdown 里这样引用：
 
 ```md
-![QNN 电路示意图](/images/note/qnn-circuit.png)
+![Qwen3 架构图](/images/note/qwen3-8B.png)
 ```
 
 注意：
@@ -375,6 +390,32 @@ Markdown 里这样引用：
 - 不要写本地绝对路径，例如 `/Users/zhanghao/Desktop/a.png`。
 - `public/` 目录会成为网站根目录，所以路径从 `/images/...` 开始。
 - 图片文件也要一起 `git add`，否则线上不会显示。
+
+导航头像和网站图标分别位于 `public/avatar.jpg`、`public/favicon.jpg`，互动猫咪的运行素材位于 `public/pet/cat-v1/`。首页相册的生成和替换步骤见 [首页猫咪相册](#首页猫咪相册)。
+
+## 新增一篇旅图
+
+1. 在仓库外整理照片。在项目根目录运行 `npm run prepare:travel-photos -- "/你的照片文件夹"`，脚本会在该目录生成 `travel-web/`。它支持 JPEG、PNG、WebP 和 macOS 上的 HEIC/HEIF，会校正方向、去掉 EXIF 等元数据，导出长边最多 2400 px、质量 90 的 WebP。已有展示图可以直接上传。
+2. 在 ImageKit 的 **Media Library** 为这趟旅行建一个文件夹，批量上传展示图。保持图片已发布、公开可访问，然后右键选 **Copy URL**。如果之后移动或重命名照片，请同步修改文章里的地址。 [ImageKit 上传说明](https://imagekit.io/docs/dam/upload-assets)
+3. 在 Typora 或常用编辑器里复制 [示例文章](src/content/travel/under-the-glass-roof.md)，把新文件存到 `src/content/travel/`。文件名决定网址，例如 `hangzhou.md` 对应 `/travel/hangzhou/`。填写 `title`、`date`，将 ImageKit 直链插在对应段落之间。图片上下各留一空行，链接末尾双引号里的文字会显示为图注。
+4. 打开 [本地旅图列表](http://127.0.0.1:4321/travel/)，检查新文章的封面、正文和图注，再按上面的流程发布。如果开发服务已经在运行，新增文章或修改文字后可运行 `npm run font:subset` 或重启开发服务，更新该篇宋体。
+
+```md
+---
+title: 杭州 · 苕溪绿道
+date: 2026-11-13
+location: 杭州
+summary: 沿着苕溪骑到日落。
+---
+
+傍晚沿着绿道骑了一圈。
+
+![夕阳下的河岸和芦苇](https://ik.imagekit.io/zhanghao/travel/hangzhou/01.webp "在河边停下来等日落")
+```
+
+`location` 和 `summary` 可省略。列表按日期倒序，封面默认取正文第一张独立图片。想另选封面时，在文首添加 `cover: 图片直链`，可用 `coverAlt` 填写图片描述。
+
+列表封面由 ImageKit 按需生成 800 × 480 的版本。详情页标题、正文和照片共用同一栏，标题、正文和图注使用思源宋体。照片保留原比例，竖图居中。ImageKit 为正文按屏幕提供长边最多 1200 或 2400 px 的图片，默认质量 86。需要单独提高画质时，可在该图地址加 `?tr=w-2400,h-2400,c-at_max,q-92,f-auto`，已有查询参数时用 `&tr=` 追加。
 
 ## 写完文章后怎么预览
 
@@ -384,7 +425,14 @@ Markdown 里这样引用：
 cd /path/to/personal-homepage
 ```
 
-启动本地服务：
+本地需要 Node.js 22.12 或更新版本及 Python。GitHub Actions 使用 Node.js 22 和 Python 3.12。首次拉取项目后安装依赖。
+
+```sh
+npm ci
+python -m pip install -r scripts/requirements-fonts.txt
+```
+
+日常启动开发服务。
 
 ```sh
 npm run dev
@@ -402,7 +450,9 @@ http://127.0.0.1:4321/blog/
 http://127.0.0.1:4321/blog/你的slug/
 ```
 
-如果页面没有刷新，浏览器里按：
+旅图列表的本地地址为 [http://127.0.0.1:4321/travel/](http://127.0.0.1:4321/travel/)。运行 `npm run build` 后，也可以用 `npm run preview` 查看最近一次构建。
+
+如果页面没有刷新，浏览器里按
 
 ```text
 Cmd + Shift + R
@@ -419,13 +469,13 @@ npm run build
 提交并推送：
 
 ```sh
-git status
-git add .
+git status --short
+git add -- src/content/blog/qnn-note-02.md
 git commit -m "Add new article"
 git push personal-homepage main
 ```
 
-GitHub Actions 会自动部署。部署状态看这里：
+上面的文件名换成要发布的文件。文章若引用了仓库里的新图片，也要一起暂存。GitHub Actions 会自动部署，可在下方查看进度。
 
 ```text
 https://github.com/zhanghao0806/zhanghao0806.github.io/actions
@@ -434,7 +484,7 @@ https://github.com/zhanghao0806/zhanghao0806.github.io/actions
 部署成功后访问：
 
 ```text
-https://zhanghao0806.github.io/
+https://zhanghao0806.com/
 ```
 
 ## 支持哪些笔记格式
@@ -493,19 +543,13 @@ Astro 会正常渲染代码块，并带基础代码高亮。
 
 可以。项目已经配置了 `remark-math`、`rehype-katex` 和 KaTeX 样式，网页端会把 Markdown 里的 LaTeX 公式渲染成正式数学公式。
 
-行内公式写法：
+在博客 Markdown 源文件中，用单个美元符号包住行内公式。参数更新公式渲染为 \(\theta_{t+1} = \theta_t - \eta \nabla L(\theta_t)\)。
 
-```md
-参数更新可以写成 $\theta_{t+1} = \theta_t - \eta \nabla L(\theta_t)$。
-```
+块级公式用一对双美元符号，各自独占一行。下面是网页渲染效果。
 
-块级公式写法：
-
-```md
 $$
 E = mc^2
 $$
-```
 
 如果你在 VS Code 里预览 Markdown 时也想看到接近网页端的公式效果，可以安装支持 KaTeX / LaTeX 的 Markdown 预览插件，比如 `Markdown Preview Enhanced`。最终以本地网页预览 `npm run dev` 的效果为准。
 
@@ -530,7 +574,7 @@ git push personal-homepage main
 
 ## 猫咪按钮与阅读彩蛋
 
-文章页的猫咪右侧有五个小圆按钮，从上到下如下。修改时可以直接用下表的“按钮名称”指示，例如“把呼神护卫按钮的光圈调大”。普通页面只有巨大模式和隐藏猫咪按钮。
+博客详情页的猫咪右侧有五个小圆按钮，从上到下如下。修改时可以直接用下表的“按钮名称”指示，例如“把呼神护卫按钮的光圈调大”。普通页面只有巨大模式和隐藏猫咪按钮。
 
 | 按钮名称 | 图案 | 作用 | 悬停台词 | 代码标识 |
 | --- | --- | --- | --- | --- |

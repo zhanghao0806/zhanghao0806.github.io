@@ -15,6 +15,7 @@
     "check:pet:ready": "node scripts/validate-pet-assets.mjs --require-ready",
     "check:cat-pages": "node scripts/validate-cat-companion-build.mjs",
     "prepare:pet-runtime": "node scripts/prepare-pet-runtime.mjs",
+    "prepare:travel-photos": "node scripts/prepare-travel-photos.mjs",
     "font:subset": "node scripts/subset-article-fonts.mjs",
     "preview": "astro preview",
     "astro": "astro"

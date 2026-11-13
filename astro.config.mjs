@@ -6,6 +6,7 @@ import remarkMath from 'remark-math';
 import remarkProseWhitespace from './src/lib/remark-prose-whitespace.mjs';
 import rehypeSourceSpacing from './src/lib/rehype-source-spacing.mjs';
 import rehypeArticleTables from './src/lib/rehype-article-tables.mjs';
+import rehypeTravelPhotos from './src/lib/rehype-travel-photos.mjs';
 
 function remarkArticleImagePerformance() {
   return (tree) => {
@@ -50,13 +51,14 @@ function rehypeArticleLinks() {
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://zhanghao0806.com',
   markdown: {
     shikiConfig: {
       theme: 'github-light',
     },
     processor: unified({
       remarkPlugins: [remarkMath, remarkProseWhitespace, remarkArticleImagePerformance],
-      rehypePlugins: [rehypeKatex, rehypeSourceSpacing, rehypeArticleLinks, rehypeArticleTables],
+      rehypePlugins: [rehypeKatex, rehypeSourceSpacing, rehypeArticleLinks, rehypeArticleTables, rehypeTravelPhotos],
     }),
   },
 });

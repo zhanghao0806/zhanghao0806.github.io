@@ -8,7 +8,7 @@ PROJECT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REMOTE="personal-homepage"
 BRANCH="main"
 ACTIONS_URL="https://github.com/zhanghao0806/zhanghao0806.github.io/actions/workflows/deploy.yml"
-SITE_URL="https://zhanghao0806.github.io/"
+SITE_URL="https://zhanghao0806.com/"
 LOCK_DIR=""
 
 close_terminal_window() {

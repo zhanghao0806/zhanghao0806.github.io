@@ -32,7 +32,9 @@ for (const htmlPath of htmlFiles) {
   const html = await readFile(htmlPath, 'utf8');
   // Astro's static redirects have no page layout or interactive components.
   const redirectTarget = html.match(/<meta http-equiv="refresh" content="\d+;url=(\/[^" ]*)">/)?.[1];
-  if (redirectTarget && html.includes(`<link rel="canonical" href="${redirectTarget}">`)) {
+  const canonicalHref = html.match(/<link rel="canonical" href="([^"]+)">/)?.[1];
+  // Astro makes the canonical URL absolute when the site origin is configured.
+  if (redirectTarget && canonicalHref && URL.parse(canonicalHref, 'https://example.invalid')?.pathname === redirectTarget) {
     const targetFile = path.join(distRoot, redirectTarget, 'index.html');
     if (!htmlFiles.includes(targetFile)) {
       pageErrors.push(`${path.relative(distRoot, htmlPath)} redirects to a missing page: ${redirectTarget}`);

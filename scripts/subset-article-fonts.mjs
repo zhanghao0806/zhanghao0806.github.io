@@ -11,10 +11,13 @@ const helper = join(root, 'scripts/subset-songti.py');
 const sources = Object.fromEntries(['Regular', 'Bold'].map(style => [
   style, join(root, `assets/fonts/songti/NotoSerifSC-${style}.otf`),
 ]));
-const sharedFiles = ['src/pages/blog/[slug].astro', 'src/components/ArticleToc.astro',
-  'src/lib/writing.js', 'src/styles/article-sakura.css'];
-const shared = sharedFiles.map(path => readFileSync(join(root, path), 'utf8')).join('\n')
-  + '\n…‘’“”–—\u00A0' + Array.from({length: 95}, (_, i) => String.fromCharCode(32 + i)).join('');
+const sharedFiles = {
+  blog: ['src/pages/blog/[slug].astro', 'src/components/ArticleToc.astro',
+    'src/lib/writing.js', 'src/styles/article-sakura.css'],
+  travel: ['src/pages/travel/[slug].astro'],
+};
+const commonCharacters = '\n…‘’“”–—\u00A0'
+  + Array.from({length: 95}, (_, i) => String.fromCharCode(32 + i)).join('');
 const hash = value => createHash('sha256').update(value).digest('hex');
 const sourceHash = hash(Buffer.concat([
   ...Object.values(sources).map(path => readFileSync(path)), readFileSync(helper),
@@ -22,21 +25,25 @@ const sourceHash = hash(Buffer.concat([
 const previous = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : {};
 const manifest = {};
 const jobs = [];
-const blogDirectory = join(root, 'src/content/blog');
 
 mkdirSync(output, { recursive: true });
 mkdirSync(join(root, 'src/generated'), { recursive: true });
-for (const article of readdirSync(blogDirectory).filter(name => name.endsWith('.md')).sort()) {
-  const text = [...new Set(readFileSync(join(blogDirectory, article), 'utf8') + shared)].sort().join('');
-  const fingerprint = hash(sourceHash + text).slice(0, 20);
-  const files = Object.fromEntries(['Regular', 'Bold'].map(style => [
-    style, `songti-${fingerprint}-${style.toLowerCase()}.woff2`,
-  ]));
-  manifest[article] = { fingerprint, regular: `/fonts/${files.Regular}`, bold: `/fonts/${files.Bold}` };
-  if (previous[article]?.fingerprint === fingerprint
-    && Object.values(files).every(name => existsSync(join(output, name)))) continue;
-  jobs.push({ article, text, fingerprint, sources,
-    outputs: Object.fromEntries(Object.entries(files).map(([style, name]) => [style, join(output, name)])) });
+for (const [section, files] of Object.entries(sharedFiles)) {
+  const directory = join(root, 'src/content', section);
+  if (!existsSync(directory)) continue;
+  const shared = files.map(path => readFileSync(join(root, path), 'utf8')).join('\n') + commonCharacters;
+  for (const name of readdirSync(directory).filter(name => name.endsWith('.md')).sort()) {
+    const article = `${section}/${name}`;
+    const text = [...new Set(readFileSync(join(directory, name), 'utf8') + shared)].sort().join('');
+    const fingerprint = hash(sourceHash + text).slice(0, 20);
+    const regular = `songti-${fingerprint}-regular.woff2`;
+    const bold = `songti-${fingerprint}-bold.woff2`;
+    manifest[article] = { fingerprint, regular: `/fonts/${regular}`, bold: `/fonts/${bold}` };
+    if (previous[article]?.fingerprint === fingerprint
+      && [regular, bold].every(file => existsSync(join(output, file)))) continue;
+    jobs.push({ article, text, fingerprint, sources,
+      outputs: { Regular: join(output, regular), Bold: join(output, bold) } });
+  }
 }
 
 // One shared bold font covers every cat line, independently of article text.

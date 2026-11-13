@@ -1,0 +1,20 @@
+---
+import articleFonts from '../generated/article-fonts.json';
+
+interface Props {
+  article: string;
+}
+
+const { article } = Astro.props;
+const font = articleFonts[article];
+if (!font) throw new Error(`缺少文章字体：${article}，请运行 npm run font:subset。`);
+
+const fontFaces = `
+  @font-face { font-family: "Article Songti"; src: url("${font.regular}") format("woff2"); font-style: normal; font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Article Songti"; src: url("${font.bold}") format("woff2"); font-style: normal; font-weight: 700; font-display: swap; }
+`;
+---
+
+<link rel="preload" href={font.regular} as="font" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" href={font.bold} as="font" type="font/woff2" crossorigin="anonymous" />
+<style is:inline set:html={fontFaces} />

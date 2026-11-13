@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getTravelPosts } from '../../lib/travel.js';
+import { travelCoverUrl } from '../../lib/travel-images.mjs';
+import { formatDate } from '../../lib/writing.js';
+
+const posts = getTravelPosts();
+---
+
+<BaseLayout title="旅图 | 张浩">
+  <section aria-label="旅图">
+    <div class="travel-grid">
+      {posts.map(({ slug, frontmatter }, index) => {
+        const { title, date, location, summary, cover, coverAlt } = frontmatter;
+        return (
+          <article>
+            <a class="travel-card" href={`/travel/${encodeURIComponent(slug)}/`} aria-label={title}>
+              {cover && (
+                <img
+                  class="travel-cover"
+                  src={travelCoverUrl(cover)}
+                  alt={coverAlt ?? ''}
+                  width="800"
+                  height="480"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={index === 0 ? 'high' : undefined}
+                  decoding="async"
+                />
+              )}
+              <p class="travel-meta">
+                <time datetime={formatDate(date)}>{formatDate(date)}</time>
+                {location && <span>{location}</span>}
+              </p>
+              <h2>{title}</h2>
+              {summary && <p class="travel-summary">{summary}</p>}
+            </a>
+          </article>
+        );
+      })}
+    </div>
+    {posts.length === 0 && <p>还没有旅图。</p>}
+  </section>
+</BaseLayout>
+
+<style>
+  .travel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px 24px;
+  }
+
+  .travel-card {
+    display: block;
+    color: var(--text);
+    border-radius: 10px;
+  }
+
+  .travel-card:focus-visible {
+    outline-offset: 6px;
+  }
+
+  .travel-cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 3;
+    object-fit: cover;
+    border-radius: 10px;
+    background: var(--surface-soft);
+  }
+
+  .travel-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 14px 0 5px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .travel-card h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .travel-summary {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 0.93rem;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 850px) {
+    .travel-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 540px) {
+    .travel-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
