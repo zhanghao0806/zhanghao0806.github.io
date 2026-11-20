@@ -1,41 +1,89 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleFontHead from '../../components/ArticleFontHead.astro';
+import TravelDirectory from '../../components/TravelDirectory.astro';
 import { getTravelPosts } from '../../lib/travel.js';
 import { formatDate } from '../../lib/writing.js';
 
 export function getStaticPaths() {
-  return getTravelPosts().map(({ slug, frontmatter, Content }) => ({
+  const posts = getTravelPosts();
+  const entries = posts.map(({ slug, frontmatter }) => ({ slug, title: frontmatter.title }));
+  return posts.map(({ slug, frontmatter, Content }) => ({
     params: { slug },
-    props: { frontmatter, Content },
+    props: { frontmatter, Content, entries },
   }));
 }
 
-const { frontmatter, Content } = Astro.props;
+const { frontmatter, Content, entries } = Astro.props;
 const { title, date, location, summary } = frontmatter;
 ---
 
-<BaseLayout title={`${title} | 旅图`} description={summary}>
+<BaseLayout title={`${title} | 旅图`} description={summary} back={{ href: '/travel/', label: '返回旅图' }}>
   <ArticleFontHead slot="head" article={`travel/${Astro.params.slug}.md`} />
-  <article class="travel-entry">
-    <header class="entry-header">
-      <a class="travel-back" href="/travel/">← 旅图</a>
-      <h1>{title}</h1>
-      <p class="entry-meta">
-        <time datetime={formatDate(date)}>{formatDate(date)}</time>
-        {location && <span>{location}</span>}
-      </p>
-    </header>
-    <div class="travel-prose">
-      <Content />
-    </div>
-  </article>
+  <div class="travel-layout">
+    <aside class="directory-panel">
+      <h2>旅图</h2>
+      <TravelDirectory entries={entries} currentSlug={Astro.params.slug} />
+    </aside>
+    <details class="directory-mobile">
+      <summary>旅图</summary>
+      <TravelDirectory entries={entries} currentSlug={Astro.params.slug} />
+    </details>
+    <article class="travel-entry">
+      <header class="entry-header">
+        <h1>{title}</h1>
+        <p class="entry-meta">
+          <time datetime={formatDate(date)}>{formatDate(date)}</time>
+          {location && <span>{location}</span>}
+        </p>
+      </header>
+      <div class="travel-prose">
+        <Content />
+      </div>
+    </article>
+  </div>
 </BaseLayout>
 
+<script>
+  for (const image of document.querySelectorAll<HTMLImageElement>('.travel-photo img')) {
+    const figure = image.closest('figure');
+    const alignPhoto = () => figure?.classList.toggle('portrait', image.naturalHeight > image.naturalWidth);
+    image.addEventListener('load', alignPhoto);
+    if (image.complete) alignPhoto();
+  }
+</script>
+
 <style>
+  .travel-layout {
+    display: grid;
+    grid-template-columns: minmax(180px, 25%) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 60px);
+    align-items: start;
+  }
+
+  .directory-panel {
+    position: sticky;
+    top: 96px;
+    max-height: calc(100svh - 112px);
+    overflow-y: auto;
+    padding-inline-end: 20px;
+    border-inline-end: 1px solid var(--line);
+  }
+
+  .directory-panel h2,
+  .directory-mobile summary {
+    margin: 0;
+    padding: 8px 12px;
+    font-size: 1rem;
+    font-weight: 650;
+  }
+
+  .directory-mobile {
+    display: none;
+  }
+
   .travel-entry {
-    width: min(100%, 680px);
-    margin-inline: auto;
+    min-width: 0;
     font-family: "Article Songti", "Songti SC", "STSong", "SimSun", "宋体",
       "Noto Serif CJK SC", "Noto Serif SC", "Source Han Serif SC", serif;
   }
@@ -44,16 +92,15 @@ const { title, date, location, summary } = frontmatter;
     margin-bottom: 32px;
   }
 
-  .travel-back {
-    display: inline-block;
-    margin-bottom: 14px;
-    font-size: 0.88rem;
-  }
-
   .entry-header h1 {
     margin: 0 0 10px;
     font-size: clamp(2rem, 5vw, 3.45rem);
     font-weight: 700;
+  }
+
+  .entry-header h1,
+  .travel-prose :global(h1) {
+    text-align: center;
   }
 
   .entry-meta {
@@ -73,9 +120,19 @@ const { title, date, location, summary } = frontmatter;
     overflow-wrap: anywhere;
   }
 
+  .travel-prose :global([data-source-whitespace="true"]) {
+    white-space: break-spaces;
+    tab-size: 1em;
+  }
+
+  .travel-prose :global(p + p) {
+    margin-block-start: 0.65em;
+  }
+
   .travel-prose :global(.travel-photo) {
-    margin: clamp(22px, 4vw, 38px) 0;
-    text-align: center;
+    width: fit-content;
+    max-width: 100%;
+    margin: clamp(22px, 4vw, 38px) 0 clamp(22px, 4vw, 38px) auto;
   }
 
   .travel-prose :global(img) {
@@ -84,14 +141,45 @@ const { title, date, location, summary } = frontmatter;
     height: auto;
     max-width: 100%;
     max-height: 78svh;
-    margin-inline: auto;
+    margin-inline-start: auto;
     border-radius: 10px;
   }
 
   .travel-prose :global(figcaption) {
+    /* Let the photograph set the figure width, including for long captions. */
+    inline-size: 0;
+    min-inline-size: 100%;
     margin-top: 8px;
     color: var(--muted);
     font-size: 0.85rem;
     line-height: 1.55;
+    text-align: center;
+  }
+
+  .travel-prose :global(.travel-photo.portrait),
+  .travel-prose :global(.travel-photo.portrait img) {
+    margin-inline: auto;
+  }
+
+  @media (max-width: 760px) {
+    .travel-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .directory-panel {
+      display: none;
+    }
+
+    .directory-mobile {
+      display: block;
+      max-height: 45svh;
+      overflow-y: auto;
+      border-block: 1px solid var(--line);
+    }
+
+    .directory-mobile summary {
+      cursor: pointer;
+    }
   }
 </style>

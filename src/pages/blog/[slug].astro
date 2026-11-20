@@ -27,7 +27,7 @@ const headingStartDepth = hasToc
 
 ---
 
-<BaseLayout title={`${post.frontmatter.title} | Blog`} back articleEffects>
+<BaseLayout title={`${post.frontmatter.title} | Blog`} back={{ href: '/blog/', label: '返回文章列表' }} articleEffects>
   <Fragment slot="head">
     <meta name="giscus:backlink" content={backlink.href} />
     <ArticleFontHead article={`blog/${basename(post.file)}`} />
