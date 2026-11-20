@@ -94,12 +94,14 @@ const { title, date, location, summary } = frontmatter;
 
   .entry-header h1 {
     margin: 0 0 10px;
-    font-size: clamp(2rem, 5vw, 3.45rem);
+    font-size: clamp(1.625rem, 2.5vw, 2rem);
     font-weight: 700;
+    text-align: left;
   }
 
-  .entry-header h1,
   .travel-prose :global(h1) {
+    margin-block: 1em 0.4em;
+    font-size: clamp(1.375rem, 2vw, 1.625rem);
     text-align: center;
   }
 

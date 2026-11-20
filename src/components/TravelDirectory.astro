@@ -30,18 +30,19 @@ const { entries, currentSlug } = Astro.props;
     display: block;
     padding: 8px 12px;
     border-inline-start: 2px solid transparent;
-    color: var(--muted);
+    color: var(--text);
     overflow-wrap: anywhere;
   }
 
   a:hover,
-  a:focus-visible,
-  a[aria-current="page"] {
+  a:focus-visible {
     color: var(--accent-strong);
     background: var(--accent-soft);
   }
 
   a[aria-current="page"] {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, var(--surface));
     border-color: var(--accent);
     font-weight: 650;
   }
