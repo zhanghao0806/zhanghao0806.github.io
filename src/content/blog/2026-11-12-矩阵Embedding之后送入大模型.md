@@ -15,13 +15,19 @@ MIT-IBM Computing Research Lab 、IBM Quantum 2026
 
 ## 核心创新
 
+也是直接把酉矩阵元素输入给 LLM，让 LLM 直接生成对应的量子电路。
+
 方法创新：
 
 架构创新：
 
-## Pipeline
+## 酉矩阵是怎么组织再送给 LLM 的？
 
-## 别人的方法为什么不行
+不是像文本那样作为字符串直接放在 prompt，先将酉矩阵转换成 Pauli Transfer Matrix（PTM），再通过一个专门训练的编码器，把矩阵映射到 LLM 的 Embedding 空间。
+
+## 数据集怎么来
+
+## 输出是什么
 
 # 问题
 
