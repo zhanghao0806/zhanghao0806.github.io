@@ -397,23 +397,38 @@ Markdown 里这样引用：
 
 1. 把一篇文章的原图放在同一个文件夹。macOS 上双击 [压缩旅图.command](scripts/压缩旅图.command) 选择照片文件夹，也可以把脚本复制到照片文件夹里再双击。每次都会把该目录顶层的照片导出到新的 `travel-web-001/`、`travel-web-002/` 等文件夹，图片沿用原名并改为 `.webp`。支持 JPEG、PNG、WebP 和 macOS 上的 HEIC/HEIF，会校正方向、去掉 EXIF 等元数据，导出长边最多 2400 px、质量 90 的 WebP。原有终端命令 `npm run prepare:travel-photos -- "/你的照片文件夹"` 仍输出到 `travel-web/`。
 2. 在 ImageKit 的 **Media Library** 为这趟旅行建一个文件夹，批量上传展示图。保持图片已发布、公开可访问，然后右键选 **Copy URL**。如果之后移动或重命名照片，请同步修改文章里的地址。 [ImageKit 上传说明](https://imagekit.io/docs/dam/upload-assets)
-3. 在 Typora 或常用编辑器里复制 [示例文章](src/content/travel/under-the-glass-roof.md)，把新文件存到 `src/content/travel/`。文件名决定网址，例如 `hangzhou.md` 对应 `/travel/hangzhou/`。填写 `title`、`date`，将 ImageKit 直链插在对应段落之间。图片上下各留一空行，地址后用一个空格和英文半角双引号 `"` 写图注。中文弯引号 `“ ”` 会导致整条图片语法被当成正文。
+3. 在 Typora 或常用编辑器里复制下面的完整示例，替换文章内容和图片地址，把新文件存到 `src/content/travel/`。文件名决定网址，例如 `hangzhou.md` 对应 `/travel/hangzhou/`。
 4. 打开 [本地旅图列表](http://127.0.0.1:4321/travel/)，检查新文章的封面、正文和图注，再按上面的流程发布。如果开发服务已经在运行，新增文章或修改文字后可运行 `npm run font:subset` 或重启开发服务，更新该篇宋体。
 
 ```md
 ---
-title: 杭州 · 苕溪绿道
-date: 2026-11-13
-location: 杭州
-summary: 沿着苕溪骑到日落。
+title: 杭州的秋
+date: 2026-11-15
+location: 杭州 · 西湖北山街
+summary: 沿北山街看梧桐，到苏堤坐一会儿。
+cover: https://ik.imagekit.io/zhanghao/261120WestLake/beishanstreet2.webp
+coverAlt: 周末的北山街
 ---
 
-傍晚沿着绿道骑了一圈。
+十一月中旬，沿着北山街往西走，路边的梧桐已经有了秋意。
 
-![夕阳下的河岸和芦苇](https://ik.imagekit.io/zhanghao/travel/hangzhou/01.webp "在河边停下来等日落")
+![北山街上的爱心公交](https://ik.imagekit.io/zhanghao/261120WestLake/beishanstreet.webp "拍摄于西湖边，杭州的爱心公交")
+
+周末到西湖散步的人很多。
+
+![周末的北山街](https://ik.imagekit.io/zhanghao/261120WestLake/beishanstreet2.webp "周末人很多")
 ```
 
-`location` 和 `summary` 可省略。列表按日期倒序，封面默认取正文第一张独立图片。想另选封面时，在文首添加 `cover: 图片直链`，可用 `coverAlt` 填写图片描述。
+| 文首字段 | 是否必填 | 用途 |
+| --- | --- | --- |
+| `title` | 必填 | 显示在列表卡片、详情页和旅图目录。 |
+| `date` | 必填 | 使用 `YYYY-MM-DD` 格式。列表按日期从新到旧排序。 |
+| `location` | 可选 | 显示在列表和详情页的日期旁。 |
+| `summary` | 可选 | 显示在列表卡片上，也用作详情页的网页描述。 |
+| `cover` | 可选 | 指定列表封面的图片直链。示例选了正文第二张，也可以用正文之外的照片。省略时取正文第一张独立图片。 |
+| `coverAlt` | 可选 | 列表封面的替代文字。省略时，如果封面地址与正文独立图片的地址一致，就沿用该图方括号里的描述。 |
+
+正文照片单独成段，上下各留一空行。方括号里写图片描述，可留空。括号里先写图片直链，如果要显示图注，在地址后加一个空格，再用英文半角双引号 `"` 包住图注。
 
 列表封面由 ImageKit 按需生成 800 × 480 的版本。详情页左侧列出全部旅图，手机上可展开目录。标题、正文和照片在右侧共用一栏，标题、正文和图注使用思源宋体。照片保持原比例，竖图在正文栏内居中，各图的图注在照片下方居中，正文保留原稿缩进。ImageKit 为正文按屏幕提供长边最多 1200 或 2400 px 的图片，默认质量 86。需要单独提高画质时，可在该图地址加 `?tr=w-2400,h-2400,c-at_max,q-92,f-auto`，已有查询参数时用 `&tr=` 追加。
 
