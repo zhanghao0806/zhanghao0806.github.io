@@ -40,17 +40,62 @@ const { title, date, location, summary } = frontmatter;
       <div class="travel-prose">
         <Content />
       </div>
+      <dialog class="photo-preview" aria-label="旅图照片预览">
+        <form method="dialog">
+          <button type="submit" autofocus>关闭 ×</button>
+        </form>
+        <img alt="" />
+        <p class="photo-preview-caption" hidden></p>
+      </dialog>
     </article>
   </div>
 </BaseLayout>
 
 <script>
-  for (const image of document.querySelectorAll<HTMLImageElement>('.travel-photo img')) {
-    const figure = image.closest('figure');
+  const dialog = document.querySelector<HTMLDialogElement>('.photo-preview');
+  const preview = dialog?.querySelector('img');
+  const caption = dialog?.querySelector<HTMLParagraphElement>('.photo-preview-caption');
+  let previewRequest = 0;
+
+  for (const trigger of document.querySelectorAll<HTMLButtonElement>('.travel-photo-trigger')) {
+    const image = trigger.querySelector('img');
+    if (!image) continue;
+
+    const figure = trigger.closest('figure');
     const alignPhoto = () => figure?.classList.toggle('portrait', image.naturalHeight > image.naturalWidth);
     image.addEventListener('load', alignPhoto);
     if (image.complete) alignPhoto();
+
+    if (!dialog || !preview || !caption) continue;
+    trigger.addEventListener('click', () => {
+      const description = figure?.querySelector('figcaption')?.textContent ?? '';
+      const fullSizeUrl = image.src;
+      const request = ++previewRequest;
+      preview.alt = image.alt || description;
+      preview.src = image.currentSrc || fullSizeUrl;
+      caption.textContent = description;
+      caption.hidden = !description;
+      trigger.focus({ preventScroll: true });
+      dialog.showModal();
+
+      if (preview.src !== fullSizeUrl) {
+        const fullSize = new Image();
+        fullSize.src = fullSizeUrl;
+        void fullSize.decode().then(() => {
+          if (dialog.open && request === previewRequest) preview.src = fullSizeUrl;
+        }).catch(() => {
+          // The image already displayed in the article remains available.
+        });
+      }
+    });
   }
+
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog?.addEventListener('close', () => {
+    if (!dialog.open) preview?.removeAttribute('src');
+  });
 </script>
 
 <style>
@@ -137,6 +182,22 @@ const { title, date, location, summary } = frontmatter;
     margin: clamp(22px, 4vw, 38px) 0 clamp(22px, 4vw, 38px) auto;
   }
 
+  .travel-prose :global(.travel-photo-trigger) {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .travel-prose :global(.travel-photo-trigger:focus-visible),
+  .photo-preview button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   .travel-prose :global(img) {
     display: block;
     width: auto;
@@ -161,6 +222,63 @@ const { title, date, location, summary } = frontmatter;
   .travel-prose :global(.travel-photo.portrait),
   .travel-prose :global(.travel-photo.portrait img) {
     margin-inline: auto;
+  }
+
+  :global(html):has(.photo-preview[open]) {
+    overflow: hidden;
+  }
+
+  .photo-preview {
+    max-width: calc(100vw - 16px);
+    max-height: calc(100dvh - 24px);
+    padding: 0 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    overscroll-behavior: contain;
+  }
+
+  .photo-preview::backdrop {
+    background: rgba(15, 23, 42, 0.82);
+  }
+
+  .photo-preview form {
+    display: flex;
+    justify-content: flex-end;
+    padding-inline: 8px;
+  }
+
+  .photo-preview button {
+    min-height: 44px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--accent-strong);
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .photo-preview button:hover {
+    background: var(--accent-soft);
+  }
+
+  .photo-preview img {
+    display: block;
+    max-width: calc(100vw - 18px);
+    max-height: calc(100dvh - 116px);
+    margin-inline: auto;
+    object-fit: contain;
+  }
+
+  .photo-preview-caption {
+    max-width: 65ch;
+    margin: 8px auto 0;
+    padding-inline: 12px;
+    font-size: 0.9rem;
+    text-align: center;
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 760px) {

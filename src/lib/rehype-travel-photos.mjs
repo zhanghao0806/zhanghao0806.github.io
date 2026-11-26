@@ -38,7 +38,18 @@ export default function rehypeTravelPhotos() {
         frontmatter.coverAlt = alt || '';
       }
 
-      const children = [photo];
+      const description = alt || title;
+      const children = [{
+        type: 'element',
+        tagName: 'button',
+        properties: {
+          type: 'button',
+          className: ['travel-photo-trigger'],
+          ariaHasPopup: 'dialog',
+          ariaLabel: description ? `查看大图：${description}` : '查看大图',
+        },
+        children: [photo],
+      }];
       if (title) {
         delete node.properties.title;
         children.push({
